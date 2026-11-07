@@ -1,6 +1,6 @@
 # Apostas — plano detalhado de implementação
 
-Estado: implementação concluída na versão web em 2026-11-06. Escopo: React/Colyseus com tabuleiro React Three Fiber. Referências: `../REGRAS-DE-JOGO.md`, `../DECISOES.md` e `emprestimo-banco.md`.
+Estado: regras e sistema concluídos em 2026-11-06; redesenho visual da aposta com roleta concluído em 2026-11-07. Escopo: React/Colyseus com tabuleiro React Three Fiber. Referências: `../REGRAS-DE-JOGO.md`, `../DECISOES.md` e `emprestimo-banco.md`.
 
 ## 1. Regras confirmadas
 
@@ -21,8 +21,8 @@ Estas escolhas tornam as regras implementáveis sem acrescentar configurações 
 - Teto efetivo: `floor(min(saldoInicial × 0,50, saldoDisponivel) / 10.000) × 10.000`. Se for menor que R$ 10.000, desabilitar a ação e explicar o motivo. Valores reservados por outros sistemas não podem ser gastos novamente.
 - Prisão e empréstimo ativo não impedem aposta por si só; a existência de dívida pendente do jogador impede. Dinheiro recebido de empréstimo integra o saldo disponível normal.
 - A aposta só é consumida quando uma escolha válida é aceita. Abrir, consultar ou cancelar o painel não consome a oportunidade.
-- O botão de cada opção confirma a aposta, sem uma segunda janela. Deve anunciar explicitamente o valor que será arriscado antes do clique.
-- Durante o processamento, bloquear novos cliques. A resolução financeira é imediata; a apresentação do resultado é apenas visual, sem bloquear a vez de todos.
+- As três opções são seletores, não confirmação. Um botão separado confirma e anuncia explicitamente o valor arriscado. A seleção atualiza a roleta e os valores exibidos sem renovar as ofertas.
+- Durante o processamento e a animação, bloquear alterações de valor, perfil e novas apostas. O servidor resolve e aplica a transação imediatamente; a roleta apresenta o resultado por 3 a 5 segundos, sem bloquear a vez de todos nem pausar relógios.
 - Não aceitar novas apostas depois de esgotado o tempo da partida, mesmo se o servidor ainda estiver terminando uma resolução anterior. Falidos, espectadores e conexões sem participante válido também não podem apostar.
 - Em modo DEV, a aposta continua exigindo saldo real suficiente e debitando dinheiro real da partida. Não aplicar gasto gratuito do modo dinheiro infinito a esta ação.
 - Sem dependências, contas, persistência externa ou novos assets 3D.
@@ -73,16 +73,16 @@ Sortear uniformemente um perfil de cada faixa por jogador/volta no servidor. Exi
 
 1. Botão APOSTAS na área de ações rápidas. Painel fechado ao entrar na partida; indicador discreto quando a aposta da volta já foi usada.
 2. Abrir solicita as condições atuais ao servidor. Durante carregamento, não apresentar opções inventadas nem permitir confirmar.
-3. Mostrar valor selecionado, controles ±10 mil/±100 mil, teto efetivo e aviso de uma aposta por volta.
-4. Exibir três opções: chance de vencer, lucro líquido se vencer, total recebido se vencer e perda se perder. Evitar chamar o recebimento total de lucro.
-5. Exemplo de opção: “60% de chance · lucro R$ 50.000 · recebe R$ 150.000 no total · se perder, perde R$ 100.000”. Botão: “Apostar R$ 100.000”.
-6. Ao confirmar, manter o painel aberto e os controles bloqueados até chegar a resposta ou ser consultado o estado sincronizado. Não repetir automaticamente uma requisição com identidade nova.
-7. Vitória: “Você ganhou! Lucro de R$ X”. Derrota: “Você perdeu R$ X”. Mostrar valor apostado e resultado, sem depender exclusivamente de cor.
-8. Após resolver, mostrar “Aposta desta volta utilizada. Disponível novamente ao passar pela Partida”. Resultado pode ser fechado e consultado novamente durante a mesma volta.
-9. Se o saldo mudar enquanto o painel está aberto, atualizar o teto e reduzir a seleção se necessário. A validação final sempre acontece no servidor.
-10. Se a volta mudar enquanto o painel estiver aberto, invalidar as opções anteriores e carregar as novas. Não enviar automaticamente a seleção antiga.
+3. Mostrar no alto à esquerda o valor selecionado, controles ±10 mil/±100 mil, teto efetivo e aviso de uma aposta por volta.
+4. Mostrar roleta verde/vermelha com setores proporcionais à chance exata da oferta selecionada; o ponteiro fica fixo no alto.
+5. Exibir três seletores na base, identificados como **Seguro**, **Arriscado** e **Maluco**, com a chance de vitória. Trocar o perfil atualiza a roleta e os valores sem sortear novas ofertas.
+6. Mostrar abaixo da roleta o lucro líquido e o total recebido ao vencer. Exemplo: “Lucro líquido R$ 50.000 · total recebido R$ 150.000”; os detalhes da opção também informam o valor perdido em caso de derrota.
+7. Um botão de confirmação separado exibe o valor apostado. Depois de confirmar, a transação e o sorteio são autoritativos no servidor; a animação de 3 a 5 segundos só apresenta o resultado decidido. O ponteiro termina no setor de vitória ou derrota correto.
+8. Enquanto a roleta gira, bloquear mudanças e novas apostas, manter o painel aberto e informar que está girando. Vitória: “Você ganhou! Lucro líquido de R$ X. Total recebido: R$ Y”. Derrota: “Você perdeu R$ X”. Mostrar resultado em texto, sem depender exclusivamente de cor.
+9. Após resolver, mostrar “Aposta desta volta utilizada. Disponível novamente ao passar pela Partida”. Resultado pode ser consultado novamente durante a mesma volta.
+10. Se o saldo mudar enquanto o painel estiver aberto, atualizar o teto e reduzir a seleção se necessário. A validação final sempre acontece no servidor. Se a volta mudar enquanto o painel estiver aberto, invalidar as opções anteriores e carregar as novas. Não enviar automaticamente a seleção antiga.
 
-Desktop: painel na lateral, afastado das decisões centrais. Mobile: painel inferior rolável, três opções empilhadas, sem transbordamento horizontal; manter acesso ao fechamento e aos valores. Não movimentar a câmera ao tocar, rolar ou arrastar o painel. Fechar com Escape, retornar foco ao botão de abertura, rótulos acessíveis e resultado com `aria-live`. Animação breve e opcional, respeitando redução de movimento; não usar roleta 3D nesta etapa.
+Desktop: painel na lateral, afastado das decisões centrais. Mobile: painel rolável dimensionado à viewport; valor e controles ficam à esquerda da roleta e os três perfis permanecem alinhados em uma faixa compacta, sem transbordamento horizontal; manter acesso ao fechamento e aos valores. Não movimentar a câmera ao tocar, rolar ou arrastar o painel. Fechar com Escape, retornar foco ao botão de abertura, rótulos acessíveis e resultado com `aria-live`. A roleta DOM anima por 3,8 segundos até o setor do recibo autoritativo; respeitar redução de movimento com duração de 250 ms. Não usar roleta 3D nesta etapa.
 
 ## 5. Estado, contratos e autoridade
 
@@ -158,7 +158,7 @@ Os nomes novos são propostas de organização. Preservar a engine e a cena 3D a
 4. **Criar estado e ofertas:** inicializar a primeira revisão, gerar três perfis no servidor e preservar o conjunto por volta/reconexão. Entrega: consultar repetidamente retorna as mesmas condições.
 5. **Implementar transação:** validar pedido e saldo, resolver uma vez, registrar recibo e responder. Entrega: duplicação, fraude de payload e corrida por saldo não alteram a economia indevidamente.
 6. **Integrar passagem:** renovar somente por percurso válido e invalidar pedidos antigos. Entrega: regressões por cada caminho de movimento, incluindo cartas.
-7. **Integrar painel:** construir desktop e mobile com opções numéricas, carregamento, erros e resultado recuperável. Entrega: apostar sem interromper o turno alheio ou a câmera.
+7. **Integrar painel e roleta:** concluído. Painel desktop/mobile com seletor de valor, setores proporcionais à chance, três perfis selecionáveis (Seguro, Arriscado e Maluco), lucro líquido e retorno total, confirmação explícita, carregamento, erros, animação de até 3,8 s e recibo recuperável. A resposta do servidor decide e aplica a aposta antes da animação; a interface apenas a apresenta sem interromper turnos ou relógios.
 8. **Cobrir ciclo da sala:** testar fim por tempo, falência, desconexão/inatividade, reconexão e partidas novas sem reaproveitar estado anterior.
 9. **Validar e publicar:** suíte completa, builds, playtest real desktop/mobile, logs, atualização do grafo e documentação, revisão do diff, hook ativo, commit e push em `main` somente do escopo relacionado.
 

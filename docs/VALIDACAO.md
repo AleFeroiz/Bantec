@@ -1,3 +1,10 @@
+### 2026-11-07 — Redesenho visual da roleta de apostas
+
+- `npm run verify` passou: 427 testes em 75 arquivos; build Vite e build TypeScript do servidor passaram. O bundle principal segue acima de 500 kB e gera o aviso conhecido do Vite.
+- Playtest local com anfitrião e bot, viewport reportada pelo navegador de 567 × 1000: abri o painel e conferi valor/ajustes, três opções e setores proporcionais; selecionar Maluco atualizou chance para 10%, lucro líquido para R$ 80.000 e recebimento total para R$ 90.000 numa aposta de R$ 10.000. A confirmação debitou R$ 10.000 e o servidor enviou vitória de R$ 90.000 totais; a animação de 3,8 s parou com ponteiro no setor verde e exibiu ambos os valores. A disponibilidade foi consumida; o turno e relógios continuaram.
+- A viewport estreita foi revisada visualmente: todos os elementos do painel couberam horizontalmente. Não foi possível controlar a viewport para revisão desktop nesta sessão; layout desktop permanece pendente de inspeção visual manual. Não houve erros no console do navegador durante o playtest.
+- Teste unitário novo verifica que, antes do sorteio, o ponteiro repousa no centro do setor de vitória; testes também cobrem proporção angular e destino dos resultados. Graphify atualizado. Os processos de Vite e Colyseus usados para a revisão foram encerrados.
+
 ### 2026-11-07 — Atualização do empréstimo bancário
 
 - `npm run verify`: 423 testes passaram em 74 arquivos; builds Vite e servidor passaram. O build mantém o aviso já conhecido de bundle principal acima de 500 kB.

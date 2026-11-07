@@ -1,3 +1,10 @@
+# Roleta de apostas — concluída (2026-11-07)
+
+- Apresentação confirmada: roleta verde/vermelha proporcional à chance; perfis Seguro, Arriscado e Maluco selecionáveis; lucro líquido e total recebido separados; confirmação própria e animação do resultado decidido pelo servidor.
+- Validação: `npm run verify` passou com 427 testes em 75 arquivos; builds Vite e servidor passaram. Playtest local em viewport 567 × 1000 confirmou painel integralmente enquadrado, troca de perfil e roleta de 10% com resultado de vitória apontando para o setor verde, lucro líquido/total recebido e disponibilidade consumida. Revisão em desktop não foi possível porque a sessão do navegador não expõe controle de viewport; o layout desktop é coberto pela mesma composição responsiva, mas segue revisão visual manual.
+- O Vite manteve o aviso conhecido de bundle principal acima de 500 kB. Graphify atualizado após a alteração. Detalhes em [VALIDACAO.md](VALIDACAO.md) e [apostas.md](trabalho/apostas.md).
+- Próximo passo: nenhum; sistema entregue.
+
 # Empréstimo: juros e casa marcada — concluído (2026-11-07)
 
 - Juros de 20%, aumentando 10 pontos percentuais por contratação; empréstimo disponível a qualquer momento. A casa onde a ficha está na contratação recebe feixe, nome e cor do jogador. Pagamento após percorrer uma volta completa até essa marca; teletransportes e movimento que já estava em andamento ao contratar não contam.
