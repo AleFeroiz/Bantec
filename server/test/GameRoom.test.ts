@@ -60,6 +60,108 @@ describe('sala privada', () => {
 
   afterEach(() => vi.restoreAllMocks())
 
+  it('valida equipes completas no servidor e sincroniza formato e cores de equipe', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    host.send('setTeamFormat', { format: 'duos' })
+    await waitFor(() => room.state.teamFormat === 'duos')
+    host.send('setTeam', { teamId: 0 })
+    guest.send('setTeam', { teamId: 0 })
+    await waitFor(() => room.state.players.get(host.sessionId)!.teamColor !== '')
+    host.send('setTeamColor', { color: '#2459c4' })
+    await waitFor(() => room.state.players.get(guest.sessionId)!.teamColor === '#2459c4')
+    const players = [...room.state.players.values()]
+    expect(players.map(({ color }) => color)).toEqual(['#a3b9e6', '#0a1937'])
+    markPlayersReady(room)
+    host.send('start')
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(room.state.status).toBe('waiting')
+    await colyseus.connectTo(room, { name: 'Caio' }).then((player) => player.send('setTeam', { teamId: 1 }))
+    const fourth = await colyseus.connectTo(room, { name: 'Duda' })
+    fourth.send('setTeam', { teamId: 1 })
+    await waitFor(() => [...room.state.players.values()].filter((player) => player.teamId === 1).length === 2)
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    expect(room.state.teamFormat).toBe('duos')
+    const cityIds = boardSpaces.filter((space) => space.region === 'north' || space.region === 'south').map((space) => space.id)
+    cityIds.forEach((id, index) => {
+      const title = new PropertyState()
+      title.ownerSessionId = index % 2 ? guest.sessionId : host.sessionId
+      room.state.properties.set(String(id), title)
+    })
+    const privateRoom = room as unknown as { checkMonopolyVictory: (sessionId: string) => boolean }
+    expect(privateRoom.checkMonopolyVictory(guest.sessionId)).toBe(true)
+    expect(room.state.matchEndReason).toBe('double-regional-monopoly')
+    expect(room.state.winnerSessionId).toBe(host.sessionId)
+    expect(room.state.landingDescription).toContain('e sua equipe venceram')
+    await colyseus.cleanup()
+  })
+
+  it('não cobra aluguel entre aliados e permite ao visitante pagar melhoria que fica com o dono', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    room.state.teamFormat = 'duos'
+    room.state.players.get(host.sessionId)!.teamId = 0
+    room.state.players.get(guest.sessionId)!.teamId = 0
+    const city = boardSpaces.find((space) => space.kind === 'property' && space.buildable)!
+    const group = boardSpaces.filter((space) => space.kind === 'property' && space.color === city.color)
+    for (const [index, space] of group.entries()) {
+      const title = new PropertyState()
+      title.ownerSessionId = index % 2 ? guest.sessionId : host.sessionId
+      room.state.properties.set(String(space.id), title)
+    }
+    const owner = guest.sessionId
+    const target = room.state.properties.get(String(city.id))!
+    target.ownerSessionId = owner
+    const visitor = room.state.players.get(host.sessionId)!
+    visitor.position = city.id
+    visitor.nextRentMultiplier = 2
+    const cashBefore = visitor.cash
+    room.state.activePlayerSessionId = host.sessionId
+    const privateRoom = room as unknown as { resolveSpace: (sessionId: string, player: typeof visitor) => void }
+    privateRoom.resolveSpace(host.sessionId, visitor)
+    expect(visitor.cash).toBe(cashBefore)
+    expect(visitor.nextRentMultiplier).toBe(2)
+    expect(room.state.pendingPropertyId).toBe(city.id)
+    const ownerBefore = room.state.players.get(owner)!.cash
+    host.send('build', { propertyId: city.id, targetHouses: 1 })
+    await waitFor(() => target.houses === 1)
+    expect(visitor.cash).toBe(cashBefore - constructionCost(city.id))
+    expect(room.state.players.get(owner)!.cash).toBe(ownerBefore)
+    expect(target.ownerSessionId).toBe(owner)
+    await colyseus.cleanup()
+  })
+
+  it('mantém a equipe jogando quando um integrante individual declara falência', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const ally = await colyseus.connectTo(room, { name: 'Bia' })
+    const rival = await colyseus.connectTo(room, { name: 'Caio' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    room.state.teamFormat = 'duos'
+    room.state.players.get(host.sessionId)!.teamId = 0
+    room.state.players.get(ally.sessionId)!.teamId = 0
+    room.state.players.get(rival.sessionId)!.teamId = 1
+    room.state.activePlayerSessionId = ally.sessionId
+    room.state.turnPhase = 'debt'
+    room.state.debtAmount = room.state.players.get(ally.sessionId)!.cash + 1
+    room.state.debtCreditorSessionId = ''
+    ally.send('declareBankruptcy')
+    await waitFor(() => room.state.players.get(ally.sessionId)!.isBankrupt)
+    expect(room.state.status).toBe('playing')
+    expect(room.state.players.get(host.sessionId)!.isBankrupt).toBe(false)
+    expect(room.state.players.get(rival.sessionId)!.isBankrupt).toBe(false)
+    await colyseus.cleanup()
+  })
+
   it('abre anúncio próprio direto para lances e restaura a fase pausada ao encerrar sem ofertas', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })

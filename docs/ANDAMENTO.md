@@ -1,3 +1,7 @@
+# Modo de times — implementado (2026-11-07)
+
+- Lobby com modo individual, duplas ou trios; escolha de equipe e cor principal sincronizadas, bots completam equipes e o servidor exige equipes completas. Regras de aluguel, melhoria em imóvel aliado, monopólios, cartas, leilão, falência e fim por tempo são aplicadas individualmente ou por equipe conforme [modo-times.md](trabalho/modo-times.md). `npm run verify`: 416 testes em 73 arquivos e builds web/servidor passaram. Playtest iniciou uma partida de duplas com dois times completos; HUD identificou os times e uma compra foi sincronizada. Revisão visual feita em 608 × 900; viewport de celular menor, fluxo manual de melhoria em imóvel aliado e cliente Unity seguem como validações pendentes.
+
 # Salto e navio — implementados (2026-11-06)
 
 - O salto foi refeito como sapato fechado de bico fino e salto agulha; o navio recebeu casco afilado, ponte, janelas e chaminé. Blender 5.2.2, exportação GLB Y-up e reimportação concluídos. `npm run verify` passou com 408 testes; revisão no lobby confirmou seleção e cor do salto e do navio, e uma partida local mostrou o navio no tabuleiro. Detalhes em [salto-navio.md](trabalho/salto-navio.md) e `docs/VALIDACAO.md`.

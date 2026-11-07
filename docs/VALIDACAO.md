@@ -1,3 +1,10 @@
+# Modo de times — 2026-11-07
+
+- `npm run verify` passou com 416 testes em 73 arquivos; builds Vite e servidor concluídos. Permanece o aviso conhecido de bundle principal acima de 500 kB.
+- Playtest local em viewport 608 × 900: configurei Duplas, completei duas equipes com bots, escolhi azul para a equipe e iniciei a partida. A seleção mostrou os integrantes em azul claro e azul bem escuro; o HUD identificou TIME 1 e TIME 2. No turno humano, comprei AgroBrasil por R$ 500.000 e o saldo sincronizado passou de R$ 2.000.000 para R$ 1.500.000; a propriedade apareceu no tabuleiro.
+- Integração Colyseus cobre equipes completas, equipe e tons, vitória com títulos divididos, aluguel entre aliados, melhoria paga pelo visitante com propriedade e melhoria mantidas pelo dono e falência individual com time ainda ativo. Não fiz teste visual em celular estreito nem melhoria manual ao vivo; o cliente Unity Web não foi exercitado.
+- `npm run graphify -- update .` atualizou o grafo após as mudanças.
+
 # Salto fechado e navio — 2026-11-06
 
 - Blender 5.2.2 LTS/MCP 1.8: o salto foi refeito como sapato fechado de bico fino com abertura para o pé e salto agulha, com 236 triângulos; o navio recebeu casco afilado, convés, ponte, janelas e chaminé, com 256 triângulos. Revisados em perfil, topo e três quartos.

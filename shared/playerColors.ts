@@ -5,3 +5,13 @@ export const PLAYER_COLOR_NAMES = ['Vermelho', 'Azul', 'Verde', 'Rosa', 'Laranja
 export function isPlayerColor(value: unknown): value is PlayerColor {
   return typeof value === 'string' && PLAYER_COLORS.some((color) => color === value)
 }
+
+function mix(color: string, target: number, amount: number) {
+  const channels = [1, 3, 5].map((offset) => Number.parseInt(color.slice(offset, offset + 2), 16))
+  return `#${channels.map((channel) => Math.round(channel + (target - channel) * amount).toString(16).padStart(2, '0')).join('')}`
+}
+
+export function getTeamMemberColor(base: PlayerColor, memberIndex: number, teamSize: number) {
+  if (teamSize === 2) return memberIndex === 0 ? mix(base, 255, 0.58) : mix(base, 0, 0.72)
+  return memberIndex === 0 ? mix(base, 255, 0.58) : memberIndex === 1 ? base : mix(base, 0, 0.72)
+}

@@ -9,13 +9,22 @@ Este documento descreve somente as regras atuais do BANTEC. Referências ao Expr
 - Partidas privadas para 2–6 participantes, sem conta. A anfitriã pode preencher lugares vazios com bots antes de começar; o servidor recusa conexões depois do sexto lugar.
 - O lobby oferece um link de convite para a sala. Quem abrir o link informa seu nome e entra diretamente; o código da sala também continua disponível para entrada manual.
 - No lobby, cada participante humano confirma que está pronto. Apenas a anfitriã pode iniciar, depois que todas as pessoas estiverem prontas e conectadas; bots contam como prontos automaticamente.
-- Há um modo de jogo. A anfitriã escolhe duração e configura saldo inicial, multiplicadores iniciais da Copa e dos festivais, quantidade de festivais, turnos na prisão e prazo de decisões gerais. Padrões: R$ 2.000.000, 2×, 2×, três festivais, três turnos e 15 segundos. A ordem de todos os participantes é sorteada no servidor no início.
+- Há o modo individual e os formatos por times: duplas ou trios. A anfitriã escolhe o formato; participantes escolhem equipe no lobby e bots podem completar equipes. Times precisam estar completos e haver ao menos duas equipes: 4 ou 6 participantes nas duplas; 6 nos trios. A ordem individual continua sorteada no servidor no início. As configurações econômicas e de duração permanecem iguais.
 - A partida termina imediatamente se alguém completar um Monopólio em Linha, dois Monopólios Regionais ou possuir as quatro companhias. Se o relógio zerar, a resolução já iniciada termina e vence quem tiver maior patrimônio; dívidas continuam até serem quitadas ou levarem à falência.
 - Para o desempate pelo tempo, compara-se dinheiro disponível + preço de compra dos títulos ainda possuídos + valor de venda das construções (metade do custo pago por construção). Empates seguem para decisão nos dados; se os resultados continuarem iguais, o servidor escolhe aleatoriamente entre as pessoas empatadas.
 - O servidor controla ordem, dados, movimento, compras, pagamentos, cartas, leilões e encerramento. Dados repetidos numa rolagem normal permitem nova jogada depois da resolução; a terceira dupla consecutiva leva diretamente à Prisão sem avançar.
 - “Sem tempo” desativa somente o cronômetro total da partida. O relógio de turno continua ativo em todas as opções: 20 segundos para rolar, 20 segundos para escolher alvos de cartas e o prazo configurado para as demais decisões, com resolução automática quando o tempo acaba.
 - A tela final informa se a partida encerrou por tempo, falência, Monopólio em Linha, Monopólio Duplo Regional, posse das quatro companhias ou ausência de participantes solventes.
 
+## Times
+
+- Formatos: individual, duplas ou trios; duplas exigem duas ou três equipes completas, trios duas equipes completas. Bots podem completar equipe. Cada participante escolhe equipe no lobby. A anfitriã escolhe formato.
+- Cada equipe escolhe cor principal; integrantes recebem tons da mesma família com alto contraste. Nome/ícone identifica equipe além da cor.
+- Dinheiro, imóveis, dívidas, impostos, empréstimos, apostas, posição e turnos são individuais. Aliados não pagam aluguel entre si e não consomem modificadores de aluguel ao cair em propriedade aliada. Não há recompra forçada entre aliados.
+- Aliados somam títulos para todas as condições de vitória existentes, para Monopólio Regional e contagem de companhias que define aluguel. Bônus regional vale para cidades dos integrantes. Vitória é da equipe.
+- Ao cair em cidade de aliado, visitante pode pagar melhoria. Restrições da primeira volta consideram o visitante; propriedade e melhoria pertencem ao dono. Eventos que exigem imóvel próprio continuam usando titularidade individual.
+- Falência elimina apenas a pessoa; seus bens seguem liquidação individual atual. O time continua com integrantes solventes; vence a última equipe com integrante solvente. Fim por tempo soma patrimônio dos integrantes solventes.
+- Cartas prejudiciais (Ladrão, Apagão, Terremoto) e Aniversário só miram adversários; Generoso pode mirar qualquer pessoa; Proteção segue titularidade individual; Troca-troca e Comunismo podem envolver aliados. Leilões entre aliados são proibidos.
 ## Tabuleiro e percurso
 
 - O tabuleiro tem 40 casas: 24 cidades brasileiras, quatro companhias, quatro taxas, quatro Sorte ou Revés e quatro cantos especiais. Não existem casas de descanso.

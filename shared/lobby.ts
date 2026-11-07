@@ -1,6 +1,7 @@
 import type { PlayerColor } from './playerColors.js'
 
 export type GameMode = 'classic'
+export type TeamFormat = 'individual' | 'duos' | 'trios'
 export type LobbyStatus = 'waiting' | 'playing' | 'ended'
 export type CharacterType = 'pawn' | 'car' | 'motorcycle' | 'airplane' | 'highHeel' | 'train' | 'topHat' | 'piggyBank' | 'ship' | 'rubberDuck' | 'dog' | 'cat' | 'cow' | 'penguin'
 
@@ -35,6 +36,8 @@ export type LobbyPlayer = {
   controllerSessionId?: string
   characterType: CharacterType
   color?: PlayerColor
+  teamId?: number
+  teamColor?: PlayerColor
   position: number
   isBankrupt?: boolean
 }

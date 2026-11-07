@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { finalScoreMetrics, rankFinalScore, scoreCriteria } from './scoreCriteria'
+import { finalScoreMetrics, rankFinalScore, rankFinalTeamScore, scoreCriteria } from './scoreCriteria'
 
 describe('descrição dos critérios do placar', () => {
   it('descreve o patrimônio liquidado como critério Clássico', () => {
@@ -25,5 +25,16 @@ describe('classificação e métricas do placar final', () => {
       { sessionId: 'b', finalCash: 300, finalNetWorth: 600, tieBreakRoll: 9 },
     ]
     expect(rankFinalScore(tiedPlayers, 'classic', '').map(({ sessionId }) => sessionId)).toEqual(['b', 'a'])
+  })
+
+  it('agrega patrimônio e saldo por equipe e exclui integrantes falidos', () => {
+    const result = rankFinalTeamScore([
+      { sessionId: 'a', name: 'Ana', teamId: 0, finalCash: 100, finalNetWorth: 300, tieBreakRoll: 0 },
+      { sessionId: 'b', name: 'Bia', teamId: 0, finalCash: 200, finalNetWorth: 400, tieBreakRoll: 0 },
+      { sessionId: 'c', name: 'Caio', teamId: 1, finalCash: 500, finalNetWorth: 500, tieBreakRoll: 0 },
+      { sessionId: 'd', name: 'Duda', teamId: 1, finalCash: 0, finalNetWorth: 0, tieBreakRoll: 0, isBankrupt: true },
+    ], 'a')
+    expect(result.map(({ name }) => name)).toEqual(['Equipe 1 · Ana + Bia', 'Equipe 2 · Caio'])
+    expect(result[0]).toMatchObject({ finalCash: 300, finalNetWorth: 700, sessionId: 'a' })
   })
 })
