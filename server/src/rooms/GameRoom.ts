@@ -59,7 +59,8 @@ export class GameRoom extends Room<{ state: LobbyState }> {
   private auctionCooldownUntil = 0
   private queuedAuctionStart: { propertyId: number; sellerSessionId: string; startingBid: number; origin: 'owner' | 'requested'; bidderSessionId?: string } | null = null
   private betOffers = new Map<string, BetOffer[]>()
-  private betReceipts = new Map<string, { requestId: string; offerId: string; amount: number; optionId: string; won: boolean; payout: number; net: number }>()
+  private betReceipts = new Map<string, Map<string, { requestId: string; offerId: string; amount: number; optionId: string; won: boolean; payout: number; net: number }>>()
+  private latestBetReceipts = new Map<string, { requestId: string; offerId: string; amount: number; optionId: string; won: boolean; payout: number; net: number }>()
 
   async onCreate(options: { mode?: unknown; matchDuration?: unknown }) {
     const mode: GameMode = isGameMode(options.mode) ? options.mode : 'classic'
@@ -357,6 +358,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       this.state.properties.clear()
       this.betOffers.clear()
       this.betReceipts.clear()
+      this.latestBetReceipts.clear()
       this.state.festivalSpaceIds = chooseFestivalCityIds(() => randomInt(1_000_000) / 1_000_000, this.state.festivalCount).join(',')
       for (const player of this.state.players.values()) {
         player.position = 0
@@ -368,7 +370,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         player.loanUsedThisLap = false
         player.loanMarkerSpaceId = 255
         player.loanStepsRemaining = 0
-        player.betUsedThisLap = false
+        player.betTickets = 1
         player.betLapRevision = 0
         player.nextRentMultiplier = 1
         player.devInfiniteCash = false
@@ -461,14 +463,15 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         this.betOffers.set(sessionId, offers)
       }
       const debt = this.state.turnPhase === 'debt' && this.state.activePlayerSessionId === sessionId
-      const reason = player.betUsedThisLap ? 'A aposta desta volta já foi usada.' : debt ? 'Quite sua dívida antes de apostar.' : ''
-      client.send('bet:offers', { lapRevision: player.betLapRevision, offers, used: player.betUsedThisLap, reason, receipt: this.betReceipts.get(sessionId) ?? null })
+      const reason = debt ? 'Quite sua dívida antes de apostar.' : player.betTickets === 0 ? 'Você não tem ingressos. Passe pela Partida para ganhar +1 ingresso.' : ''
+      client.send('bet:offers', { lapRevision: player.betLapRevision, offers, tickets: player.betTickets, reason, receipt: this.latestBetReceipts.get(sessionId) ?? null })
     },
     placeBet: (client: Client, payload: { requestId?: unknown; offerId?: unknown; optionId?: unknown; amount?: unknown }) => {
       if (this.state.auctionId > 0) return
       const sessionId = this.getPlayerSessionId(client)
       const player = this.state.players.get(sessionId)
-      const previousReceipt = this.betReceipts.get(sessionId)
+      const requestId = payload?.requestId
+      const previousReceipt = typeof requestId === 'string' ? this.betReceipts.get(sessionId)?.get(requestId) : undefined
       if (typeof payload?.requestId === 'string' && previousReceipt?.requestId === payload.requestId) {
         if (previousReceipt.offerId !== payload.offerId || previousReceipt.optionId !== payload.optionId || previousReceipt.amount !== payload.amount) {
           client.send('bet:rejected', { message: 'Esse identificador de aposta já foi usado com outros dados.' })
@@ -481,7 +484,6 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         client.send('bet:rejected', { message: 'A aposta não está disponível nesta partida.' })
         return
       }
-      const requestId = payload?.requestId
       const offerId = payload?.offerId
       const optionId = payload?.optionId
       const amount = payload?.amount
@@ -490,8 +492,8 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       const debt = this.state.turnPhase === 'debt' && this.state.activePlayerSessionId === sessionId
       const limit = betLimit(this.state.startingCash, player.cash)
       if (typeof requestId !== 'string' || requestId.length < 1 || requestId.length > 64 || typeof offerId !== 'string' || typeof optionId !== 'string' || !offer
-        || debt || player.betUsedThisLap || typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount < BET_MINIMUM || amount > limit || amount % BET_STEP !== 0) {
-        client.send('bet:rejected', { message: debt ? 'Quite sua dívida antes de apostar.' : 'Aposta inválida ou indisponível. Confira o saldo e tente novamente.' })
+        || debt || player.betTickets === 0 || typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount < BET_MINIMUM || amount > limit || amount % BET_STEP !== 0) {
+        client.send('bet:rejected', { message: debt ? 'Quite sua dívida antes de apostar.' : player.betTickets === 0 ? 'Você não tem ingressos. Passe pela Partida para ganhar +1 ingresso.' : 'Aposta inválida ou indisponível. Confira o saldo e tente novamente.' })
         return
       }
       const payout = betPayout(amount, offer)
@@ -499,12 +501,18 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         client.send('bet:rejected', { message: 'O prêmio ultrapassa o limite de saldo do jogo.' })
         return
       }
-      player.betUsedThisLap = true
+      player.betTickets -= 1
       const won = betWon(randomInt(10_000), offer.chance)
       player.cash -= amount
       if (won) this.creditCash(player, payout)
       const receipt = { requestId, offerId, amount, optionId, won, payout: won ? payout : 0, net: won ? payout - amount : -amount }
-      this.betReceipts.set(sessionId, receipt)
+      let playerReceipts = this.betReceipts.get(sessionId)
+      if (!playerReceipts) {
+        playerReceipts = new Map()
+        this.betReceipts.set(sessionId, playerReceipts)
+      }
+      playerReceipts.set(requestId as string, receipt)
+      this.latestBetReceipts.set(sessionId, receipt)
       client.send('bet:result', receipt)
     },
     rollCompany: (client: Client) => {
@@ -2235,7 +2243,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
 
   private resetBetForLap(sessionId: string, player: LobbyPlayerState) {
     player.betLapRevision += 1
-    player.betUsedThisLap = false
+    if (player.betTickets < 0xffff_ffff) player.betTickets += 1
     this.betOffers.delete(sessionId)
   }
 

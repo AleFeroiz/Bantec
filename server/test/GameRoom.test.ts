@@ -397,7 +397,7 @@ describe('sala privada', () => {
     await colyseus.cleanup()
   })
 
-  it('mantém as ofertas da aposta e aplica uma única transação por volta', async () => {
+  it('acumula ingressos ao cruzar a Partida e consome um por aposta', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
     const guest = await colyseus.connectTo(room, { name: 'Bia' })
@@ -405,40 +405,69 @@ describe('sala privada', () => {
     host.send('start')
     await waitFor(() => room.state.status === 'playing')
     const player = room.state.players.get(guest.sessionId)!
+    expect(room.state.players.get(host.sessionId)?.betTickets).toBe(1)
     const offerMessages: unknown[] = []
     const resultMessages: unknown[] = []
+    const rejectedMessages: unknown[] = []
     guest.onMessage('bet:offers', (message) => offerMessages.push(message))
     guest.onMessage('bet:result', (message) => resultMessages.push(message))
+    guest.onMessage('bet:rejected', (message) => rejectedMessages.push(message))
     guest.send('requestBetOffers')
     await waitFor(() => offerMessages.length === 1)
     guest.send('requestBetOffers')
     await waitFor(() => offerMessages.length === 2)
     expect(offerMessages[1]).toEqual(offerMessages[0])
-    const data = offerMessages[0] as { offers: { id: string; offerId: string }[] }
+    expect(player.betTickets).toBe(1)
+    const initialData = offerMessages[0] as { offers: { id: string; offerId: string }[] }
     const before = player.cash
-    const requestId = 'bet-request-1'
-    const bet = { requestId, offerId: data.offers[0]!.offerId, optionId: data.offers[0]!.id, amount: BET_MINIMUM }
-    guest.send('placeBet', bet)
-    await waitFor(() => resultMessages.length === 1 && player.betUsedThisLap)
-    const balanceAfterFirst = player.cash
-    const receipt = resultMessages[0]
-    guest.send('placeBet', bet)
-    await waitFor(() => resultMessages.length === 2)
-    expect(player.cash).toBe(balanceAfterFirst)
-    expect(resultMessages[1]).toEqual(receipt)
+    const initialBet = { requestId: 'bet-initial-ticket', offerId: initialData.offers[0]!.offerId, optionId: initialData.offers[0]!.id, amount: BET_MINIMUM }
+    guest.send('placeBet', initialBet)
+    await waitFor(() => resultMessages.length === 1 && player.betTickets === 0)
+    const cashAfterInitialBet = player.cash
+    expect(cashAfterInitialBet).toBe(before + (resultMessages[0] as { net: number }).net)
+    const unavailableBet = { ...initialBet, requestId: 'bet-without-ticket' }
+    guest.send('placeBet', unavailableBet)
+    await waitFor(() => rejectedMessages.length === 1)
+    expect(player.cash).toBe(cashAfterInitialBet)
     expect(player.cash).toBeGreaterThanOrEqual(before - BET_MINIMUM)
     const movementRoom = room as unknown as {
       movePlayer: (sessionId: string, target: typeof player, spaces: number) => void
       startCardTeleport: (sessionId: string, target: typeof player, destinationId: number, description: string) => void
     }
     player.position = boardSpaces.length - 1
-    player.betUsedThisLap = true
-    movementRoom.startCardTeleport(guest.sessionId, player, 0, 'Teleporte de teste.')
-    expect(player.betUsedThisLap).toBe(true)
+    movementRoom.movePlayer(guest.sessionId, player, 1)
+    expect(player.betTickets).toBe(1)
     player.position = boardSpaces.length - 1
     movementRoom.movePlayer(guest.sessionId, player, 1)
-    expect(player.betUsedThisLap).toBe(false)
-    expect(player.betLapRevision).toBe(1)
+    expect(player.betTickets).toBe(2)
+    expect(player.betLapRevision).toBe(2)
+    guest.send('requestBetOffers')
+    await waitFor(() => offerMessages.length === 3)
+    const data = offerMessages[2] as { offers: { id: string; offerId: string }[]; tickets: number }
+    expect(data.tickets).toBe(2)
+    const cashBeforeBets = player.cash
+    const firstBet = { requestId: 'bet-request-1', offerId: data.offers[0]!.offerId, optionId: data.offers[0]!.id, amount: BET_MINIMUM }
+    guest.send('placeBet', firstBet)
+    await waitFor(() => resultMessages.length === 2 && player.betTickets === 1)
+    const firstReceipt = resultMessages[1] as { net: number }
+    const balanceAfterFirst = player.cash
+    expect(balanceAfterFirst).toBe(cashBeforeBets + firstReceipt.net)
+    const secondBet = { ...firstBet, requestId: 'bet-request-2' }
+    guest.send('placeBet', secondBet)
+    await waitFor(() => resultMessages.length === 3 && player.betTickets === 0)
+    const balanceAfterSecond = player.cash
+    const secondReceipt = resultMessages[2] as { net: number }
+    expect(balanceAfterSecond).toBe(balanceAfterFirst + secondReceipt.net)
+    guest.send('placeBet', firstBet)
+    await waitFor(() => resultMessages.length === 4)
+    expect(player.cash).toBe(balanceAfterSecond)
+    expect(resultMessages[3]).toEqual(resultMessages[1])
+    movementRoom.startCardTeleport(guest.sessionId, player, 0, 'Teleporte de teste.')
+    expect(player.betTickets).toBe(0)
+    player.position = boardSpaces.length - 1
+    movementRoom.movePlayer(guest.sessionId, player, 1)
+    expect(player.betTickets).toBe(1)
+    expect(player.betLapRevision).toBe(3)
     await colyseus.cleanup()
   })
 

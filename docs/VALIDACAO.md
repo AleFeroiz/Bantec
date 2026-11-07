@@ -1,3 +1,9 @@
+### 2026-11-07 — Ingressos acumuláveis para apostas
+
+- `npm run verify` passou: 427 testes em 75 arquivos; build Vite e build TypeScript do servidor passaram. O bundle principal permanece acima de 500 kB e gera o aviso conhecido do Vite.
+- Playtest local com anfitrião e bot em viewport estreita (567 × 1000): ambos iniciaram com 1 ingresso; no painel, o ícone e a contagem apareceram no HUD e na janela. Uma aposta de R$ 10.000 consumiu o ingresso e atualizou o contador para zero; o botão e os controles ficaram bloqueados com orientação para passar pela Partida. Após cruzamento válido, a contagem passou a 1 e voltou a permitir aposta. O teste Colyseus adicional verificou duas passagens acumulando dois ingressos, duas apostas na mesma volta, replay idempotente de pedido anterior e teletransporte sem conceder ingresso.
+- Consultei o console do navegador ao final: nenhum erro ou aviso. A viewport disponível foi estreita; revisão desktop visual segue pendente. Graphify atualizado; os servidores locais foram encerrados.
+
 ### 2026-11-07 — Redesenho visual da roleta de apostas
 
 - `npm run verify` passou: 427 testes em 75 arquivos; build Vite e build TypeScript do servidor passaram. O bundle principal segue acima de 500 kB e gera o aviso conhecido do Vite.

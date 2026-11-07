@@ -6,11 +6,19 @@ import { BET_WHEEL_REDUCED_MOTION_DURATION_MS, BET_WHEEL_SPIN_DURATION_MS, betWh
 import { getBettingPanelPosition } from './bettingPanelPosition'
 
 type BetReceipt = { requestId: string; offerId: string; amount: number; optionId: string; won: boolean; payout: number; net: number }
-type Props = { room: Room; cash: number; startingCash: number; used: boolean; lapRevision: number; isInDebt: boolean; isEnded: boolean }
+type Props = { room: Room; cash: number; startingCash: number; tickets: number; lapRevision: number; isInDebt: boolean; isEnded: boolean }
 const formatMoney = (amount: number) => `R$ ${amount.toLocaleString('pt-BR')}`
 const BAND_LABEL: Record<BetBand, string> = { safer: 'SEGURO', balanced: 'ARRISCADO', 'long-shot': 'MALUCO' }
 
-export function BettingPanel({ room, cash, startingCash, used, lapRevision, isInDebt, isEnded }: Props) {
+function TicketIcon({ className = '' }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 48 32" aria-hidden="true" focusable="false">
+    <path d="M4 4h40v8a4 4 0 0 0 0 8v8H4v-8a4 4 0 0 0 0-8V4Z" fill="currentColor" />
+    <path d="M24 7v3m0 4v3m0 4v3m0 4v1" fill="none" stroke="#fff9e7" strokeLinecap="round" strokeWidth="2" strokeDasharray="1 1" />
+    <path d="M9 9h9m-9 14h9" fill="none" stroke="#fff9e7" strokeLinecap="round" strokeWidth="2" opacity=".9" />
+  </svg>
+}
+
+export function BettingPanel({ room, cash, startingCash, tickets, lapRevision, isInDebt, isEnded }: Props) {
   const [open, setOpen] = useState(false)
   const [amount, setAmount] = useState(BET_MINIMUM)
   const [offers, setOffers] = useState<BetOffer[]>([])
@@ -28,7 +36,7 @@ export function BettingPanel({ room, cash, startingCash, used, lapRevision, isIn
   const panelRef = useRef<HTMLElement>(null)
   const offersRef = useRef<BetOffer[]>([])
   const pendingOfferRef = useRef<BetOffer | null>(null)
-  const lastPresentedRequestRef = useRef('')
+  const presentedRequestIdsRef = useRef(new Set<string>())
   const wheelRotationRef = useRef(0)
   const spinTimerRef = useRef<number | undefined>(undefined)
   const [panelPosition, setPanelPosition] = useState({ left: 12, top: 12, width: 300, maxHeight: 400 })
@@ -57,10 +65,10 @@ export function BettingPanel({ room, cash, startingCash, used, lapRevision, isIn
     const removeResult = room.onMessage<BetReceipt>('bet:result', (data) => {
       setReceipt(data)
       setError('')
-      if (lastPresentedRequestRef.current === data.requestId) return
+      if (presentedRequestIdsRef.current.has(data.requestId)) return
       const offer = offersRef.current.find((candidate) => candidate.offerId === data.offerId && candidate.id === data.optionId) ?? pendingOfferRef.current
       if (!offer) { setPending(false); return }
-      lastPresentedRequestRef.current = data.requestId
+      presentedRequestIdsRef.current.add(data.requestId)
       pendingOfferRef.current = offer
       setSpinOffer(offer)
       setWheelChance(offer.chance)
@@ -113,14 +121,14 @@ export function BettingPanel({ room, cash, startingCash, used, lapRevision, isIn
   useEffect(() => {
     if (!selectedOffer || spinning) return
     setWheelChance(selectedOffer.chance)
-    if (!used) {
+    if (!currentReceipt || currentReceipt.optionId !== selectedOffer.id) {
       const restRotation = betWheelWinningRestRotation(selectedOffer.chance)
       wheelRotationRef.current = restRotation
       setWheelRotation(restRotation)
     }
-  }, [selectedOffer, spinning, used])
+  }, [selectedOffer, spinning, currentReceipt])
 
-  const disabledReason = isEnded ? 'A partida terminou.' : isInDebt ? 'Quite sua dívida antes de apostar.' : used ? 'Aposta desta volta usada. Disponível novamente ao passar pela Partida.' : limit < BET_MINIMUM ? 'Você precisa ter pelo menos R$ 10.000 disponíveis.' : ''
+  const disabledReason = isEnded ? 'A partida terminou.' : isInDebt ? 'Quite sua dívida antes de apostar.' : tickets === 0 ? 'Você não tem ingressos. Passe pela Partida para ganhar +1 ingresso.' : limit < BET_MINIMUM ? 'Você precisa ter pelo menos R$ 10.000 disponíveis.' : ''
   const changeAmount = (delta: number) => setAmount((value) => Math.max(BET_MINIMUM, Math.min(limit, Math.round((value + delta) / BET_STEP) * BET_STEP)))
   const updatePanelPosition = useCallback(() => {
     const anchor = triggerRef.current?.getBoundingClientRect()
@@ -154,9 +162,9 @@ export function BettingPanel({ room, cash, startingCash, used, lapRevision, isIn
   }, [open, updatePanelPosition, offers, selectedOfferId, amount, spinning, receipt, error])
 
   if (isEnded) return null
-  const controlsDisabled = pending || spinning || used || isInDebt || amount > limit || !selectedOffer || offerRevision !== lapRevision
+  const controlsDisabled = pending || spinning || tickets === 0 || isInDebt || amount > limit || !selectedOffer || offerRevision !== lapRevision
   const summaryOffer = spinning ? spinOffer ?? selectedOffer : selectedOffer
-  const stakeAmount = (used || spinning) && currentReceipt ? currentReceipt.amount : amount
+  const stakeAmount = spinning && currentReceipt ? currentReceipt.amount : amount
   const totalPayout = summaryOffer ? betPayout(stakeAmount, summaryOffer) : 0
   const netProfit = totalPayout - stakeAmount
   const wheelAngle = betWheelWinDegrees(wheelChance)
@@ -167,10 +175,10 @@ export function BettingPanel({ room, cash, startingCash, used, lapRevision, isIn
   } as CSSProperties
 
   return <div className="betting-control">
-    <button ref={triggerRef} type="button" aria-expanded={open} aria-controls="betting-panel" disabled={pending || spinning} onClick={() => { const next = !open; setOpen(next); if (next) room.send('requestBetOffers') }}><span aria-hidden="true">◉</span><small>APOSTAS{used ? ' · USADA' : ''}</small></button>
+    <button ref={triggerRef} type="button" aria-label={`Apostas, ${tickets} ${tickets === 1 ? 'ingresso' : 'ingressos'}`} aria-expanded={open} aria-controls="betting-panel" disabled={pending || spinning} onClick={() => { const next = !open; setOpen(next); if (next) room.send('requestBetOffers') }}><span className="bet-ticket-trigger-icon"><TicketIcon /></span><small>APOSTAS</small><b className="bet-ticket-trigger-count">{tickets}</b></button>
     {open && createPortal(<section ref={panelRef} id="betting-panel" className="betting-panel" aria-label="Apostas" data-camera-drag="off" style={{ left: panelPosition.left, top: panelPosition.top, width: panelPosition.width, maxHeight: panelPosition.maxHeight }}>
-      <header><strong>APOSTA DA VOLTA</strong><button type="button" aria-label="Fechar apostas" disabled={pending || spinning} onClick={() => setOpen(false)}>×</button></header>
-      <p className="bet-intro">Escolha o valor e o perfil. Uma aposta até passar pela Partida.</p>
+      <header><strong>APOSTAS</strong><span className="bet-ticket-counter" aria-label={`${tickets} ${tickets === 1 ? 'ingresso disponível' : 'ingressos disponíveis'}`}><TicketIcon /><b>{tickets}</b></span><button type="button" aria-label="Fechar apostas" disabled={pending || spinning} onClick={() => setOpen(false)}>×</button></header>
+      <p className="bet-intro">Você começa com 1 ingresso. Cada passagem pela Partida concede +1; eles acumulam.</p>
       {disabledReason && <p className="bet-disabled-reason" role="status">{disabledReason}</p>}
       {offers.length === 0 ? <p role="status">Carregando opções…</p> : <>
         <div className="bet-main-grid">

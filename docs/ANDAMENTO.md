@@ -1,3 +1,10 @@
+# Ingressos acumuláveis para apostas — concluídos (2026-11-07)
+
+- Mudança confirmada: cada jogador começa com um ingresso; cada cruzamento válido pela Partida concede outro. Ingressos acumulam e cada aposta consome um. Jogar sem ingresso fica bloqueado. O painel exibe a contagem com ícone próprio.
+- `npm run verify` passou: 427 testes em 75 arquivos e builds web/servidor aprovados. Teste Colyseus cobre ingresso inicial, aposta sem ingresso, acúmulo de dois cruzamentos, duas apostas no mesmo ciclo, idempotência de solicitação antiga e teletransporte sem ingresso.
+- Playtest local em viewport 567 × 1000 mostrou o contador/ícone no HUD e no painel: partida começou com 1, aposta consumiu para 0 e passagem válida pela Partida aumentou para 1. Console do navegador sem mensagens de erro ou aviso. Desktop não foi revisado visualmente nesta sessão.
+- Graphify atualizado. Detalhes em [VALIDACAO.md](VALIDACAO.md) e [apostas.md](trabalho/apostas.md). Próximo passo: nenhum; regra e interface concluídas.
+
 # Roleta de apostas — concluída (2026-11-07)
 
 - Apresentação confirmada: roleta verde/vermelha proporcional à chance; perfis Seguro, Arriscado e Maluco selecionáveis; lucro líquido e total recebido separados; confirmação própria e animação do resultado decidido pelo servidor.
