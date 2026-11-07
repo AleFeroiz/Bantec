@@ -2,16 +2,27 @@ export const PLAYER_COLORS = ['#b3261e', '#2459c4', '#27843a', '#cc438f', '#bd5a
 export type PlayerColor = (typeof PLAYER_COLORS)[number]
 export const PLAYER_COLOR_NAMES = ['Vermelho', 'Azul', 'Verde', 'Rosa', 'Laranja', 'Amarelo', 'Preto', 'Branco', 'Roxo', 'Marrom', 'Ciano', 'Lima'] as const
 
+export const TEAM_COLOR_PALETTES = [
+  { id: 'blue', name: 'Azul e ciano', baseColor: '#2459c4', memberColors: ['#2459c4', '#61d3df', '#138f9c'] },
+  { id: 'red', name: 'Vermelho e laranja', baseColor: '#b3261e', memberColors: ['#b3261e', '#e88a38', '#dd5e43'] },
+  { id: 'purple', name: 'Roxo e rosa', baseColor: '#693aa5', memberColors: ['#693aa5', '#cc438f', '#a876c6'] },
+  { id: 'yellow', name: 'Amarelo e marrom', baseColor: '#b38c0d', memberColors: ['#b38c0d', '#754a29', '#e3c755'] },
+  { id: 'mono', name: 'Branco e preto', baseColor: '#b7c4d5', memberColors: ['#f3f0e6', '#434b53', '#a9b4c0'] },
+] as const
+
+export type TeamPaletteColor = (typeof TEAM_COLOR_PALETTES)[number]['baseColor']
+
 export function isPlayerColor(value: unknown): value is PlayerColor {
   return typeof value === 'string' && PLAYER_COLORS.some((color) => color === value)
 }
 
-function mix(color: string, target: number, amount: number) {
-  const channels = [1, 3, 5].map((offset) => Number.parseInt(color.slice(offset, offset + 2), 16))
-  return `#${channels.map((channel) => Math.round(channel + (target - channel) * amount).toString(16).padStart(2, '0')).join('')}`
+export function isTeamPaletteColor(value: unknown): value is TeamPaletteColor {
+  return TEAM_COLOR_PALETTES.some((palette) => palette.baseColor === value)
 }
 
 export function getTeamMemberColor(base: PlayerColor, memberIndex: number, teamSize: number) {
-  if (teamSize === 2) return memberIndex === 0 ? mix(base, 255, 0.58) : mix(base, 0, 0.72)
-  return memberIndex === 0 ? mix(base, 255, 0.58) : memberIndex === 1 ? base : mix(base, 0, 0.72)
+  const palette = TEAM_COLOR_PALETTES.find(({ baseColor }) => baseColor === base)
+  if (!palette) return base
+  const colorIndex = Math.min(Math.max(Math.floor(memberIndex), 0), Math.min(teamSize, palette.memberColors.length) - 1)
+  return palette.memberColors[colorIndex] ?? base
 }

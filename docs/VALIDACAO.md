@@ -1,10 +1,10 @@
 # Modo de times — 2026-11-07
 
-- `npm run verify` passou com 416 testes em 73 arquivos; builds Vite e servidor concluídos. Permanece o aviso conhecido de bundle principal acima de 500 kB.
-- Playtest local em viewport 608 × 900: configurei Duplas, completei duas equipes com bots, escolhi azul para a equipe e iniciei a partida. A seleção mostrou os integrantes em azul claro e azul bem escuro; o HUD identificou TIME 1 e TIME 2. No turno humano, comprei AgroBrasil por R$ 500.000 e o saldo sincronizado passou de R$ 2.000.000 para R$ 1.500.000; a propriedade apareceu no tabuleiro.
-- Integração Colyseus cobre equipes completas, equipe e tons, vitória com títulos divididos, aluguel entre aliados, melhoria paga pelo visitante com propriedade e melhoria mantidas pelo dono e falência individual com time ainda ativo. Não fiz teste visual em celular estreito nem melhoria manual ao vivo; o cliente Unity Web não foi exercitado.
-- A inspeção do cliente Unity encontrou schema C# antigo, sem os campos de equipe e também sem campos de empréstimo/aposta. Os novos campos do servidor foram movidos para o fim do schema para não deslocar índices existentes; o modo de times não está implementado na interface Unity e o cliente não foi testado contra esta versão.
-- `npm run graphify -- update .` atualizou o grafo após as mudanças.
+- Revisão desta rodada: cartões do HUD e fichas usaram cores iguais por pessoa; equipes foram configuradas com paletas azul/ciano e vermelho/laranja. O seletor Individual/Duplas/Trios ficou no bloco principal do lobby. Assentos de duplas apareceram em equipes lado a lado; Trios apareceu em duas equipes empilhadas, cada uma com três lugares e ação direta para entrar.
+- Partida local em viewport 608 × 900: completei duas duplas com bots e iniciei. O HUD identificou TIME 1 e TIME 2, e as quatro cores dos cartões corresponderam às fichas no tabuleiro. O teste visual não comprou imóvel nem fez melhoria nesta rodada.
+- `npm run verify` passou com 420 testes em 74 arquivos; build Vite e build do servidor concluídos. O Vite manteve o aviso de bundle principal acima de 500 kB.
+- Testes Colyseus cobrem cores da paleta, times completos, distribuição automática ao entrar, bots direcionados a uma equipe e redirecionados se ela estiver cheia, vitória com títulos divididos, aluguel entre aliados, melhorias pagas por aliado e falência individual.
+- `npm run graphify -- update .` atualizou o grafo depois das mudanças. O cliente Unity Web não foi exercitado nesta rodada.
 
 # Salto fechado e navio — 2026-11-06
 

@@ -6,7 +6,7 @@ import { AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_MIN_BID_I
 import { boardSpaces } from '../../../shared/board.js'
 import { isWorldCupVenue } from '../../../shared/worldCup.js'
 import { CARD_REVEAL_SECONDS, CARD_TARGET_SECONDS } from '../../../shared/game.js'
-import { PLAYER_COLORS, getTeamMemberColor, isPlayerColor } from '../../../shared/playerColors.js'
+import { PLAYER_COLORS, TEAM_COLOR_PALETTES, getTeamMemberColor, isPlayerColor, isTeamPaletteColor } from '../../../shared/playerColors.js'
 import { isPlayerEmote } from '../../../shared/playerEmotes.js'
 import { isThrowableObject, THROW_COOLDOWN_MS } from '../../../shared/throwables.js'
 import { EVENT_CARDS } from '../../../shared/cards.js'
@@ -130,8 +130,11 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     player.isBot = false
     player.isBotControlled = false
     player.controllerSessionId = client.sessionId
+    player.teamId = this.state.teamFormat === 'individual' ? 0 : Math.max(0, this.getLeastPopulatedTeam())
+    player.teamColor = this.state.teamFormat === 'individual' ? '' : this.getExistingTeamColor(player.teamId)
     player.color = this.getAvailablePlayerColor()
     this.state.players.set(this.getPlayerSessionId(client), player)
+    if (this.state.teamFormat !== 'individual') this.applyTeamColors(player.teamId)
   }
 
   messages = {
@@ -140,11 +143,14 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       const format = payload?.format
       if (this.state.status !== 'waiting' || !requester?.isHost || !['individual', 'duos', 'trios'].includes(String(format))) return
       this.state.teamFormat = String(format)
-      for (const player of this.state.players.values()) {
-        player.teamId = 0
-        player.teamColor = ''
+      const teamSize = this.state.teamFormat === 'duos' ? 2 : this.state.teamFormat === 'trios' ? 3 : 1
+      Array.from(this.state.players.values()).forEach((player, index) => {
+        player.teamId = this.state.teamFormat === 'individual' ? 0 : Math.floor(index / teamSize)
+        player.teamColor = this.state.teamFormat === 'individual' ? '' : TEAM_COLOR_PALETTES[player.teamId % TEAM_COLOR_PALETTES.length]!.baseColor
+        if (this.state.teamFormat === 'individual') player.color = PLAYER_COLORS[index % PLAYER_COLORS.length]!
         player.isReady = player.isBot
-      }
+      })
+      for (const teamId of new Set(Array.from(this.state.players.values()).map((player) => player.teamId))) this.applyTeamColors(teamId)
     },
     setTeam: (client: Client, payload: { teamId?: unknown }) => {
       const sessionId = this.getPlayerSessionId(client)
@@ -161,12 +167,13 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       player.teamColor = this.getExistingTeamColor(teamId as number)
       for (const member of this.state.players.values()) if (member.teamId === player.teamId) member.teamColor = player.teamColor
       for (const member of this.state.players.values()) if (member.teamId === previousTeamId || member.teamId === player.teamId) member.isReady = member.isBot
+      this.applyTeamColors(previousTeamId)
       this.applyTeamColors(teamId as number)
     },
     setTeamColor: (client: Client, payload: { color?: unknown }) => {
       const sessionId = this.getPlayerSessionId(client)
       const player = this.state.players.get(sessionId)
-      if (this.state.status !== 'waiting' || this.state.teamFormat === 'individual' || !player || player.isBot || !isPlayerColor(payload?.color)) return
+      if (this.state.status !== 'waiting' || this.state.teamFormat === 'individual' || !player || player.isBot || !isTeamPaletteColor(payload?.color)) return
       if (Array.from(this.state.players.values()).some((other) => other.teamId !== player.teamId && other.teamColor === payload.color)) {
         client.send('room:error', { message: 'Outra equipe já escolheu essa cor.' })
         return
@@ -283,7 +290,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       }
       this.state.devToolsEnabled = payload.enabled
     },
-    addBot: (client: Client) => {
+    addBot: (client: Client, payload: { teamId?: unknown } = {}) => {
       const requester = this.state.players.get(this.getPlayerSessionId(client))
       if (this.state.status !== 'waiting' || !requester?.isHost || this.state.players.size >= MAX_ROOM_PLAYERS) {
         client.send('room:error', { message: 'Só a pessoa anfitriã pode adicionar bots enquanto há lugares livres na sala.' })
@@ -302,7 +309,10 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       bot.isReady = true
       bot.isConnected = true
       bot.color = this.getAvailablePlayerColor()
-      bot.teamId = this.state.teamFormat === 'individual' ? 0 : this.getLeastPopulatedTeam()
+      const teamSize = this.state.teamFormat === 'duos' ? 2 : 3
+      const requestedTeam = payload?.teamId
+      const requestedTeamIsValid = Number.isInteger(requestedTeam) && (requestedTeam as number) >= 0 && (requestedTeam as number) < MAX_ROOM_PLAYERS / teamSize && Array.from(this.state.players.values()).filter((player) => player.teamId === requestedTeam).length < teamSize
+      bot.teamId = this.state.teamFormat === 'individual' ? 0 : requestedTeamIsValid ? requestedTeam as number : this.getLeastPopulatedTeam()
       bot.teamColor = this.state.teamFormat === 'individual' ? '' : this.getExistingTeamColor(bot.teamId)
       this.state.players.set(sessionId, bot)
       this.applyTeamColors(bot.teamId)
@@ -1766,7 +1776,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
 
   private getTeamBaseColor(teamId: number) {
     const otherColors = new Set(Array.from(this.state.players.values()).filter((player) => player.teamId !== teamId).map((player) => player.teamColor))
-    return PLAYER_COLORS.find((color) => !otherColors.has(color)) ?? PLAYER_COLORS[teamId % PLAYER_COLORS.length]!
+    return TEAM_COLOR_PALETTES.find((palette) => !otherColors.has(palette.baseColor))?.baseColor ?? TEAM_COLOR_PALETTES[teamId % TEAM_COLOR_PALETTES.length]!.baseColor
   }
 
   private getExistingTeamColor(teamId: number) {

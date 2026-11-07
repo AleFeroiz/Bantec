@@ -4,10 +4,10 @@ Data: 2026-11-07. Estado: **implementado**.
 
 ## Escopo confirmado
 
-- A anfitriã escolhe Individual, Duplas ou Trios no lobby; jogadores escolhem uma equipe. Bots podem completar vagas. Duplas aceitam duas ou três equipes completas; trios exigem duas equipes completas. A ordem continua individual e sorteada pelo servidor.
+- A anfitriã escolhe Individual, Duplas ou Trios no lobby; participantes entram distribuídos entre equipes e podem trocar em seus grupos. Bots podem completar vagas de uma equipe escolhida pelo anfitrião. Duplas aceitam duas ou três equipes completas; trios exigem duas equipes completas. A ordem continua individual e sorteada pelo servidor.
 - Dinheiro, imóveis, dívidas, impostos, empréstimos, apostas, posição e turnos continuam individuais. Um aliado que cai numa cidade pode pagar melhorias nela; a primeira volta é verificada para quem constrói, e o imóvel e melhorias seguem pertencendo ao dono.
 - Aliados não pagam aluguel entre si. Todas as condições de vitória existentes se aplicam ao time somando títulos; o último time com integrante solvente vence. O fim por tempo soma o patrimônio dos integrantes solventes.
-- Cada equipe escolhe uma cor principal. Integrantes recebem tons claros/escuros da mesma família, com diferença ampla; nome e identificador de equipe também aparecem na partida.
+- Cada equipe escolhe uma paleta pronta de cores próximas e distintas: azul/ciano, vermelho/laranja, roxo/rosa, amarelo/marrom ou branco/preto. Em trios, cada integrante recebe uma cor distinta da paleta. Cartões e fichas usam a mesma cor, e o identificador da equipe permanece visível.
 
 ## Encaminhamentos implementados
 

@@ -1,6 +1,7 @@
-# Modo de times — implementado (2026-11-07)
+# Modo de times — revisão visual concluída (2026-11-07)
 
-- Lobby com modo individual, duplas ou trios; escolha de equipe e cor principal sincronizadas, bots completam equipes e o servidor exige equipes completas. Regras de aluguel, melhoria em imóvel aliado, monopólios, cartas, leilão, falência e fim por tempo são aplicadas individualmente ou por equipe conforme [modo-times.md](trabalho/modo-times.md). `npm run verify`: 416 testes em 73 arquivos e builds web/servidor passaram. Playtest iniciou uma partida de duplas com dois times completos; HUD identificou os times e uma compra foi sincronizada. Revisão visual feita em 608 × 900; viewport de celular menor, fluxo manual de melhoria em imóvel aliado e cliente Unity seguem como validações pendentes.
+- Cartões do HUD usam a mesma cor autoritativa das fichas. As equipes escolhem paletas prontas; o anfitrião muda Individual/Duplas/Trios no lobby; os assentos se agrupam por equipe, com ação direta para entrar e bot adicionado à equipe escolhida.
+- `npm run verify` passou com 420 testes e builds Vite/servidor. Playtest local revisou Duplas e Trios no viewport 608 × 900 e uma partida com duas duplas confirmou no HUD as cores azul/ciano e vermelho/laranja. Detalhes em [VALIDACAO.md](VALIDACAO.md).
 
 # Salto e navio — implementados (2026-11-06)
 

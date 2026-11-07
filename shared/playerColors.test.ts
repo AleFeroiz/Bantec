@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTeamMemberColor, isPlayerColor, PLAYER_COLORS, PLAYER_COLOR_NAMES } from './playerColors.js'
+import { getTeamMemberColor, isPlayerColor, isTeamPaletteColor, PLAYER_COLORS, PLAYER_COLOR_NAMES, TEAM_COLOR_PALETTES } from './playerColors.js'
 
 describe('cores do lobby', () => {
   it('oferece doze cores distintas com um nome para cada uma', () => {
@@ -15,14 +15,21 @@ describe('cores do lobby', () => {
     expect(isPlayerColor('#ffffff')).toBe(false)
   })
 
-  it('dá à dupla tons claros e bem escuros da mesma cor escolhida', () => {
-    const pair = [getTeamMemberColor('#2459c4', 0, 2), getTeamMemberColor('#2459c4', 1, 2)]
-    expect(pair[0]).toBe('#a3b9e6')
-    expect(pair[1]).toBe('#0a1937')
-    expect(pair[0]).not.toBe(pair[1])
+  it('oferece paletas de equipe prontas, com cores próximas e distintas', () => {
+    expect(TEAM_COLOR_PALETTES.map((palette) => palette.name)).toEqual([
+      'Azul e ciano', 'Vermelho e laranja', 'Roxo e rosa', 'Amarelo e marrom', 'Branco e preto',
+    ])
+    expect(TEAM_COLOR_PALETTES.every((palette) => new Set(palette.memberColors).size === 3)).toBe(true)
+    for (const palette of TEAM_COLOR_PALETTES) expect(isTeamPaletteColor(palette.baseColor)).toBe(true)
+    expect(isTeamPaletteColor('#138f9c')).toBe(false)
   })
 
-  it('diferencia os três integrantes do trio mantendo o tom principal no meio', () => {
-    expect([0, 1, 2].map((index) => getTeamMemberColor('#2459c4', index, 3))).toEqual(['#a3b9e6', '#2459c4', '#0a1937'])
+  it('usa azul e ciano na dupla e entrega três cores próximas no trio', () => {
+    expect([0, 1].map((index) => getTeamMemberColor('#2459c4', index, 2))).toEqual(['#2459c4', '#61d3df'])
+    expect([0, 1, 2].map((index) => getTeamMemberColor('#2459c4', index, 3))).toEqual(['#2459c4', '#61d3df', '#138f9c'])
+  })
+
+  it('mantém o branco legível no tabuleiro dentro da paleta monocromática', () => {
+    expect([0, 1, 2].map((index) => getTeamMemberColor('#b7c4d5', index, 3))).toEqual(['#f3f0e6', '#434b53', '#a9b4c0'])
   })
 })

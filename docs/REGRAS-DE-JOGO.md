@@ -18,8 +18,8 @@ Este documento descreve somente as regras atuais do BANTEC. Referências ao Expr
 
 ## Times
 
-- Formatos: individual, duplas ou trios; duplas exigem duas ou três equipes completas, trios duas equipes completas. Bots podem completar equipe. Cada participante escolhe equipe no lobby. A anfitriã escolhe formato.
-- Cada equipe escolhe cor principal; integrantes recebem tons da mesma família com alto contraste. Nome/ícone identifica equipe além da cor.
+- Formatos: individual, duplas ou trios; duplas exigem duas ou três equipes completas, trios duas equipes completas. Ao entrar, participantes são distribuídos entre as equipes; podem trocar pelo grupo da equipe desejada no lobby. A anfitriã escolhe o formato no lobby e bots podem completar vagas.
+- Cada equipe escolhe uma paleta pronta com cores próximas e distintas: azul/ciano, vermelho/laranja, roxo/rosa, amarelo/marrom ou branco/preto. Em trios, cada integrante recebe uma cor distinta da paleta. Cartões e fichas usam a mesma cor; nome/ícone também identifica a equipe.
 - Dinheiro, imóveis, dívidas, impostos, empréstimos, apostas, posição e turnos são individuais. Aliados não pagam aluguel entre si e não consomem modificadores de aluguel ao cair em propriedade aliada. Não há recompra forçada entre aliados.
 - Aliados somam títulos para todas as condições de vitória existentes, para Monopólio Regional e contagem de companhias que define aluguel. Bônus regional vale para cidades dos integrantes. Vitória é da equipe.
 - Ao cair em cidade de aliado, visitante pode pagar melhoria. Restrições da primeira volta consideram o visitante; propriedade e melhoria pertencem ao dono. Eventos que exigem imóvel próprio continuam usando titularidade individual.
