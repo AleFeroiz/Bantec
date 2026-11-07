@@ -35,5 +35,5 @@ Data: 2026-11-07. Estado: **implementado**.
 
 - Rever visualmente o lobby e o HUD em viewport estreito de celular.
 - Fazer playtest manual da melhoria paga por aliado; o comportamento está coberto pela integração Colyseus.
-- Confirmar compatibilidade do protocolo com o cliente Unity Web antes de publicar mudanças de protocolo para esse cliente.
+- O schema gerado do cliente Unity ainda não contém os campos de time e também está defasado em empréstimos/apostas; os novos campos de time foram colocados no fim do schema para preservar os índices existentes. A interface Unity não oferece seleção de equipe, então esse cliente ainda não participa de partidas por time.
 - Observar ritmo e duração em partidas humanas de duplas e trios para avaliar equilíbrio, sem alterar as condições de vitória acordadas.

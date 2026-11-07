@@ -13,8 +13,6 @@ export const LobbyPlayerState = schema({
   controllerSessionId: t.string().default(''),
   characterType: t.string().default('pawn'),
   color: t.string().default('#ce7558'),
-  teamId: t.uint8().default(0),
-  teamColor: t.string().default(''),
   position: t.uint8().default(0),
   hasCompletedFirstLap: t.boolean().default(false),
   cash: t.int32().default(0),
@@ -32,6 +30,8 @@ export const LobbyPlayerState = schema({
   finalCash: t.int32().default(0),
   finalNetWorth: t.int32().default(0),
   tieBreakRoll: t.uint8().default(0),
+  teamId: t.uint8().default(0),
+  teamColor: t.string().default(''),
 })
 
 export type LobbyPlayerState = SchemaType<typeof LobbyPlayerState>
@@ -50,7 +50,6 @@ export const LobbyState = schema({
   properties: t.map(PropertyState),
   roomCode: t.string().default(''),
   mode: t.string().default('classic'),
-  teamFormat: t.string().default('individual'),
   matchDuration: t.uint16().default(1800),
   cupInitialMultiplier: t.float32().default(2),
   festivalMultiplier: t.float32().default(2),
@@ -105,6 +104,7 @@ export const LobbyState = schema({
   auctionPausedTurnPhase: t.string().default(''),
   auctionPausedTurnSeconds: t.uint8().default(0),
   auctionOrigin: t.string().default(''),
+  teamFormat: t.string().default('individual'),
 })
 
 export type LobbyState = SchemaType<typeof LobbyState>

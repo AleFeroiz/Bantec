@@ -3,6 +3,7 @@
 - `npm run verify` passou com 416 testes em 73 arquivos; builds Vite e servidor concluídos. Permanece o aviso conhecido de bundle principal acima de 500 kB.
 - Playtest local em viewport 608 × 900: configurei Duplas, completei duas equipes com bots, escolhi azul para a equipe e iniciei a partida. A seleção mostrou os integrantes em azul claro e azul bem escuro; o HUD identificou TIME 1 e TIME 2. No turno humano, comprei AgroBrasil por R$ 500.000 e o saldo sincronizado passou de R$ 2.000.000 para R$ 1.500.000; a propriedade apareceu no tabuleiro.
 - Integração Colyseus cobre equipes completas, equipe e tons, vitória com títulos divididos, aluguel entre aliados, melhoria paga pelo visitante com propriedade e melhoria mantidas pelo dono e falência individual com time ainda ativo. Não fiz teste visual em celular estreito nem melhoria manual ao vivo; o cliente Unity Web não foi exercitado.
+- A inspeção do cliente Unity encontrou schema C# antigo, sem os campos de equipe e também sem campos de empréstimo/aposta. Os novos campos do servidor foram movidos para o fim do schema para não deslocar índices existentes; o modo de times não está implementado na interface Unity e o cliente não foi testado contra esta versão.
 - `npm run graphify -- update .` atualizou o grafo após as mudanças.
 
 # Salto fechado e navio — 2026-11-06
