@@ -2,7 +2,7 @@ import { randomInt } from 'node:crypto'
 import { CloseCode, Client, Room } from '@colyseus/core'
 import { MAX_ROOM_PLAYERS, type GameMode } from '../../../shared/lobby.js'
 import { isCharacterType, isGameMode, normalizePlayerName } from '../../../shared/lobby.js'
-import { AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_MIN_BID_INCREMENT, AUCTION_REQUEST_SECONDS, CLASSIC_MATCH_SECONDS, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS, LOAN_MINIMUM, MATCH_DURATIONS, PAWN_STEP_ANIMATION_DURATION_MS, PAWN_TELEPORT_ANIMATION_DURATION_MS, PROPERTY_BUILD_LEVELS, PROPERTY_HOTEL_LEVEL, START_BONUS, TURN_ROLL_SECONDS, applyRentMultiplier, areDiceDoubles, bankReturnValue, buildingSaleValue, calculateCompanyRent, calculateNetWorth, calculateRent, canBuildHotel, canBuildLevelAfterFirstLap, canBuildProperty, canReturnPropertyToBank, canSellBuilding, chooseFestivalCityIds, constructionCost, describeLanding, divideBalances, forcedBuybackCost, getAnimationDuration, getMonopolyWinReason, getWorldCupRentMultiplier, hasLiquidatableAssets, hotelConstructionCost, isAnimationSpeed, isMatchDuration, loanLimit, loanRepayment, movePosition, taxForSpace, type MatchEndReason } from '../../../shared/game.js'
+import { AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_MIN_BID_INCREMENT, AUCTION_REQUEST_SECONDS, CLASSIC_MATCH_SECONDS, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS, LOAN_MINIMUM, MATCH_DURATIONS, PAWN_STEP_ANIMATION_DURATION_MS, PAWN_TELEPORT_ANIMATION_DURATION_MS, PROPERTY_BUILD_LEVELS, PROPERTY_HOTEL_LEVEL, START_BONUS, TURN_ROLL_SECONDS, applyRentMultiplier, areDiceDoubles, bankReturnValue, buildingSaleValue, calculateCompanyRent, calculateNetWorth, calculateRent, canBuildHotel, canBuildLevelAfterFirstLap, canBuildProperty, canReturnPropertyToBank, canSellBuilding, chooseFestivalCityIds, constructionCost, describeLanding, divideBalances, forcedBuybackCost, getAnimationDuration, getMonopolyWinReason, getWorldCupRentMultiplier, hasLiquidatableAssets, hotelConstructionCost, isAnimationSpeed, isMatchDuration, loanLimit, loanRepayment, loanStepsRemainingAfterMovement, movePosition, taxForSpace, type MatchEndReason } from '../../../shared/game.js'
 import { boardSpaces } from '../../../shared/board.js'
 import { isWorldCupVenue } from '../../../shared/worldCup.js'
 import { CARD_REVEAL_SECONDS, CARD_TARGET_SECONDS } from '../../../shared/game.js'
@@ -366,6 +366,8 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         player.loanAmount = 0
         player.loanDue = 0
         player.loanUsedThisLap = false
+        player.loanMarkerSpaceId = 255
+        player.loanStepsRemaining = 0
         player.betUsedThisLap = false
         player.betLapRevision = 0
         player.nextRentMultiplier = 1
@@ -438,8 +440,10 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       player.loanAmount = amount
       player.loanDue = due
       player.loanUsedThisLap = true
+      player.loanMarkerSpaceId = player.position
+      player.loanStepsRemaining = boardSpaces.length
       this.creditCash(player, amount)
-      this.state.landingDescription = `${player.name} contratou empréstimo de ${amount.toLocaleString('pt-BR')}; deverá pagar ${due.toLocaleString('pt-BR')} ao passar pela Partida.`
+      this.state.landingDescription = `${player.name} contratou empréstimo de ${amount.toLocaleString('pt-BR')}; deverá pagar ${due.toLocaleString('pt-BR')} após completar uma volta a partir de ${boardSpaces[player.position]?.name ?? 'sua posição atual'}.`
       if (this.state.turnPhase === 'debt' && this.state.activePlayerSessionId === sessionId && this.canSpend(player, this.state.debtAmount)) {
         this.messages.payDebt({ sessionId, send: () => undefined } as unknown as Client)
       }
@@ -843,10 +847,12 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       if (reason === 'Pagamento do empréstimo') {
         debtor.loanAmount = 0
         debtor.loanDue = 0
+        debtor.loanMarkerSpaceId = 255
+        debtor.loanStepsRemaining = 0
       }
       this.state.turnPhase = 'resolve'
       this.state.landingDescription = `Dívida paga (${reason}): ${amount.toLocaleString('pt-BR')}.`
-      if (debtor.loanDue > 0) {
+      if (debtor.loanDue > 0 && debtor.loanStepsRemaining === 0) {
         this.collectLoanPayment(this.getPlayerSessionId(client), debtor)
         if (this.state.turnPhase === 'debt') return
       }
@@ -2153,7 +2159,6 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     const travelDescription = passesStart ? `${description} Você passou pela Partida e recebeu R$ ${START_BONUS.toLocaleString('pt-BR')}.` : description
     this.state.landingDescription = travelDescription
     if (passesStart) {
-      player.loanUsedThisLap = false
       this.creditCash(player, START_BONUS)
     }
     this.state.presentationSpeed = this.state.animationSpeed
@@ -2161,7 +2166,6 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       if (this.state.turnPhase !== 'moving' || this.state.activePlayerSessionId !== sessionId || player.position !== destinationId) return
       this.state.pawnMoveMode = 'walk'
       this.resolveSpace(sessionId, player, false, travelDescription)
-      this.collectLoanPayment(sessionId, player)
       this.finishExpiredPhaseIfReady()
     })
   }
@@ -2242,6 +2246,8 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       this.spendCash(player, due)
       player.loanAmount = 0
       player.loanDue = 0
+      player.loanMarkerSpaceId = 255
+      player.loanStepsRemaining = 0
       this.state.landingDescription += ` Empréstimo quitado: ${due.toLocaleString('pt-BR')} pagos ao banco.`
       return
     }
@@ -2419,13 +2425,17 @@ export class GameRoom extends Room<{ state: LobbyState }> {
 
   private startPawnMovement(sessionId: string, player: LobbyPlayerState, startPosition: number, descriptionPrefix = '', drawEvent = true) {
     const steps = (player.position - startPosition + boardSpaces.length) % boardSpaces.length
+    const loanReachesMarker = player.loanDue > 0 && player.loanStepsRemaining > 0 && steps >= player.loanStepsRemaining
+    if (player.loanDue > 0 && player.loanStepsRemaining > 0) {
+      player.loanStepsRemaining = loanStepsRemainingAfterMovement(player.loanStepsRemaining, steps)
+    }
     this.state.pawnMoveMode = 'walk'
     this.state.turnPhase = 'moving'
     this.state.presentationSpeed = this.state.animationSpeed
     this.schedulePresentation(Math.max(1, steps) * getAnimationDuration(PAWN_STEP_ANIMATION_DURATION_MS, this.state.presentationSpeed), () => {
       if (this.state.turnPhase !== 'moving' || this.state.activePlayerSessionId !== sessionId) return
       this.resolveSpace(sessionId, player, drawEvent, descriptionPrefix)
-      this.collectLoanPayment(sessionId, player)
+      if (loanReachesMarker) this.collectLoanPayment(sessionId, player)
       this.finishExpiredPhaseIfReady()
     })
   }

@@ -16,8 +16,13 @@ export function loanLimit(startingCash: number) {
 
 export function loanRepayment(amount: number, previousLoans: number) {
   if (!Number.isSafeInteger(amount) || amount < LOAN_MINIMUM || !Number.isSafeInteger(previousLoans) || previousLoans < 0) return 0
-  const interestRate = 1 + previousLoans * 0.5
+  const interestRate = 0.2 + previousLoans * 0.1
   return Math.ceil(amount * (1 + interestRate))
+}
+
+export function loanStepsRemainingAfterMovement(stepsRemaining: number, stepsMoved: number) {
+  if (!Number.isSafeInteger(stepsRemaining) || stepsRemaining < 0 || !Number.isSafeInteger(stepsMoved) || stepsMoved < 0) return 0
+  return Math.max(0, stepsRemaining - stepsMoved)
 }
 export const FESTIVAL_CITY_COUNT = 3
 export const FESTIVAL_RENT_MULTIPLIER = 2

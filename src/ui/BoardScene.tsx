@@ -37,7 +37,7 @@ import { advanceThrowableElapsed, getThrowableAimPoint, getThrowableFlightPoint,
 import type { CharacterType } from '../../shared/lobby'
 
 type PropertyBuilding = { spaceId: number; ownerSessionId: string; houses: number; blackoutTurns?: number; protectionTurns?: number; ownerColor: string }
-type PlayerToken = { id: string; position: number; color: string; seatIndex: number; cash: number; characterType: CharacterType; activity?: string; emote?: { emote: PlayerEmote; sequence: number } }
+type PlayerToken = { id: string; name?: string; position: number; color: string; seatIndex: number; cash: number; characterType: CharacterType; loanMarkerSpaceId?: number; loanDue?: number; activity?: string; emote?: { emote: PlayerEmote; sequence: number } }
 type ThrowableEvent = { id: number; fromSessionId: string; toSessionId: string; object: ThrowableObject }
 type EarthquakeEvent = { id: number; spaceId: number; houses: number; ownerColor: string }
 type CityEffectEvent = { id: number; spaceId: number; effect: 'blackout' | 'protection' | 'world-cup' | 'earthquake' | 'generous' }
@@ -691,6 +691,17 @@ function EarthquakeCollapse({ event, scene }: { event: EarthquakeEvent; scene: O
   return <group ref={ref} position={[x + offsetX, BUILDING_GROUP_Y + getPropertyModelYOffset(event.houses), z + offsetZ]} rotation={[0, decoration.buildingRotation, 0]} scale={1.25}>{model && <primitive object={model.object} />}</group>
 }
 
+function LoanMarker({ player }: { player: PlayerToken }) {
+  const { x, z } = positionOnBoard(player.loanMarkerSpaceId ?? 0)
+  return <group position={[x + 0.22, 0, z + 0.22]} raycast={skipRaycast}>
+    <mesh position={[0, 0.62, 0]}><cylinderGeometry args={[0.035, 0.11, 1.18, 8]} /><meshBasicMaterial color={player.color} transparent opacity={0.72} depthWrite={false} /></mesh>
+    <mesh position={[0, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}><torusGeometry args={[0.23, 0.04, 6, 24]} /><meshBasicMaterial color={player.color} /></mesh>
+    <Html position={[0, 1.28, 0]} center distanceFactor={8} zIndexRange={[8, 0]} style={{ pointerEvents: 'none' }}>
+      <span style={{ display: 'block', whiteSpace: 'nowrap', border: `2px solid ${player.color}`, borderRadius: 999, padding: '4px 9px', background: '#082223', color: '#fff9eb', fontSize: 11, fontWeight: 900, boxShadow: `0 0 16px ${player.color}88` }}>EMPRÉSTIMO · {player.name ?? 'Jogador'}</span>
+    </Html>
+  </group>
+}
+
 function CityEffectMarker({ event }: { event: CityEffectEvent }) {
   const ring = useRef<Mesh>(null)
   const elapsed = useRef(0)
@@ -843,6 +854,7 @@ function Board({ players, pawnGroups, activePlayerSessionId, destinationSpaceId,
       </Suspense>
       {destinationSpaceId >= 0 && (() => { const target = positionOnBoard(destinationSpaceId); return <group position={[target.x, 0, target.z]}><FloatingPointingArrow color="#ffe27a" size={1.3} baseY={1.5} /></group> })()}
       {players.map((player) => <AnimatedPawn key={player.id} player={player} headwear={player.id === wealthHeadwear.richestId ? 'crown' : player.id === wealthHeadwear.poorestId ? 'jester' : null} stackIndex={pawnStackIndices.get(player.id) ?? 0} pawnGroups={pawnGroups} reducedMotion={reducedMotion} movementEnabled={pawnMovementEnabled} moveMode={pawnMoveMode} presentationSpeed={presentationSpeed} pawnStepSoundEnabled={pawnStepSoundEnabled} isActive={player.id === activePlayerSessionId} onMovementComplete={onMovementComplete} />)}
+      {players.filter((player) => (player.loanMarkerSpaceId ?? 255) !== 255).map((player) => <LoanMarker key={`loan-${player.id}`} player={player} />)}
       {thrownObjects.map((event) => <ThrowableProjectile key={event.id} event={event} pawnGroups={pawnGroups} />)}
       {earthquakeEvents.map((event) => <EarthquakeCollapse key={event.id} event={event} scene={buildingScene} />)}
       {cityEffectEvents.map((event) => <CityEffectMarker key={event.id} event={event} />)}
@@ -1043,7 +1055,7 @@ function BoardSceneCanvas({ nightMode, players, activePlayerSessionId = '', loca
 function samePlayers(first: PlayerToken[], second: PlayerToken[]) {
   return first.length === second.length && first.every((player, index) => {
     const other = second[index]
-    return Boolean(other && player.id === other.id && player.position === other.position && player.color === other.color && player.seatIndex === other.seatIndex && player.cash === other.cash && player.characterType === other.characterType && player.activity === other.activity && player.emote?.sequence === other.emote?.sequence)
+    return Boolean(other && player.id === other.id && player.name === other.name && player.position === other.position && player.color === other.color && player.seatIndex === other.seatIndex && player.cash === other.cash && player.characterType === other.characterType && player.loanMarkerSpaceId === other.loanMarkerSpaceId && player.loanDue === other.loanDue && player.activity === other.activity && player.emote?.sequence === other.emote?.sequence)
   })
 }
 

@@ -20,6 +20,8 @@ export const LobbyPlayerState = schema({
   loanAmount: t.int32().default(0),
   loanDue: t.int32().default(0),
   loanUsedThisLap: t.boolean().default(false),
+  loanMarkerSpaceId: t.uint8().default(255),
+  loanStepsRemaining: t.uint8().default(0),
   betUsedThisLap: t.boolean().default(false),
   betLapRevision: t.uint32().default(0),
   nextRentMultiplier: t.float32().default(1),

@@ -1,3 +1,10 @@
+### 2026-11-07 — Atualização do empréstimo bancário
+
+- `npm run verify`: 423 testes passaram em 74 arquivos; builds Vite e servidor passaram. O build mantém o aviso já conhecido de bundle principal acima de 500 kB.
+- Playtest em partida local: contratação fora da vez resultou no crédito configurado; o painel mostrou juros de 20%, total a pagar e a casa marcada. A cena exibiu o feixe na cor de Codex QA e o rótulo “EMPRÉSTIMO · Codex QA” na Partida. Em viewport móvel, o painel permaneceu dentro da tela. Console do navegador sem erros.
+- Testes de regras verificam a progressão 20%/30%/40% e o avanço dos passos restantes; integração Colyseus verifica vencimento ao chegar à marca e garante que teletransportes não renovam o empréstimo nem avançam os passos.
+- Graphify atualizado após mudanças no código. Servidor Colyseus e Vite iniciados para o playtest foram encerrados ao final.
+
 # Modo de times — 2026-11-07
 
 - Revisão desta rodada: cartões do HUD e fichas usaram cores iguais por pessoa; equipes foram configuradas com paletas azul/ciano e vermelho/laranja. O seletor Individual/Duplas/Trios ficou no bloco principal do lobby. Assentos de duplas apareceram em equipes lado a lado; Trios apareceu em duas equipes empilhadas, cada uma com três lugares e ação direta para entrar.

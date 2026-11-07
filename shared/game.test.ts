@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { boardSpaces } from './board.js'
-import { ANIMATION_SPEEDS, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS, FESTIVAL_CITY_COUNT, LOAN_MINIMUM, MATCH_DURATIONS, PAWN_STEP_ANIMATION_DURATION_MS, TURN_DECISION_SECONDS, applyRentMultiplier, areDiceDoubles, calculateCompanyRent, calculateNetWorth, calculateRent, canBuildLevelAfterFirstLap, chooseFestivalCityIds, constructionCost, divideBalances, forcedBuybackCost, getAnimationDuration, getMatchEndSummary, getMonopolyWinReason, getWorldCupRentMultiplier, hasWinningMonopoly, isAnimationSpeed, isMatchDuration, liquidatablePropertyIds, loanLimit, loanRepayment } from './game.js'
+import { ANIMATION_SPEEDS, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS, FESTIVAL_CITY_COUNT, LOAN_MINIMUM, MATCH_DURATIONS, PAWN_STEP_ANIMATION_DURATION_MS, TURN_DECISION_SECONDS, applyRentMultiplier, areDiceDoubles, calculateCompanyRent, calculateNetWorth, calculateRent, canBuildLevelAfterFirstLap, chooseFestivalCityIds, constructionCost, divideBalances, forcedBuybackCost, getAnimationDuration, getMatchEndSummary, getMonopolyWinReason, getWorldCupRentMultiplier, hasWinningMonopoly, isAnimationSpeed, isMatchDuration, liquidatablePropertyIds, loanLimit, loanRepayment, loanStepsRemainingAfterMovement } from './game.js'
 
 describe('empréstimo ao banco', () => {
   it('calcula limite de 25% em incrementos de R$ 10 mil e exige valor mínimo', () => {
@@ -9,11 +9,17 @@ describe('empréstimo ao banco', () => {
     expect(loanLimit(39_999)).toBe(0)
   })
 
-  it('aumenta os juros em 50 pontos percentuais por contratação', () => {
-    expect(loanRepayment(500_000, 0)).toBe(1_000_000)
-    expect(loanRepayment(500_000, 1)).toBe(1_250_000)
-    expect(loanRepayment(500_000, 2)).toBe(1_500_000)
+  it('começa com 20% de juros e aumenta 10 pontos percentuais por contratação', () => {
+    expect(loanRepayment(500_000, 0)).toBe(600_000)
+    expect(loanRepayment(500_000, 1)).toBe(650_000)
+    expect(loanRepayment(500_000, 2)).toBe(700_000)
     expect(loanRepayment(LOAN_MINIMUM - 1, 0)).toBe(0)
+  })
+
+  it('conta uma volta de percurso desde a casa marcada', () => {
+    expect(loanStepsRemainingAfterMovement(40, 7)).toBe(33)
+    expect(loanStepsRemainingAfterMovement(3, 3)).toBe(0)
+    expect(loanStepsRemainingAfterMovement(40, 41)).toBe(0)
   })
 })
 

@@ -48,7 +48,7 @@ import { buildRoomInviteUrl, getRoomInviteCode, normalizeRoomCode } from './room
 type Mode = GameMode
 type Screen = 'home' | 'room' | 'game'
 type TurnPhase = 'roll' | 'rolling' | 'moving' | 'resolve' | 'purchase' | 'buyback' | 'buyback-upgrade' | 'start-upgrade' | 'company-roll' | 'jail' | 'world-cup' | 'world-tour' | 'card-target' | 'debt' | 'ended'
-type SyncedPlayer = LobbyPlayer & { sessionId: string; cash: number; devInfiniteCash: boolean; hasCompletedFirstLap: boolean; loanCount: number; loanAmount: number; loanDue: number; loanUsedThisLap: boolean; betUsedThisLap: boolean; betLapRevision: number; nextRentMultiplier: number; isJailed: boolean; jailTurns: number; isBankrupt: boolean; finalCash: number; finalNetWorth: number; tieBreakRoll: number }
+type SyncedPlayer = LobbyPlayer & { sessionId: string; cash: number; devInfiniteCash: boolean; hasCompletedFirstLap: boolean; loanCount: number; loanAmount: number; loanDue: number; loanUsedThisLap: boolean; loanMarkerSpaceId: number; loanStepsRemaining: number; betUsedThisLap: boolean; betLapRevision: number; nextRentMultiplier: number; isJailed: boolean; jailTurns: number; isBankrupt: boolean; finalCash: number; finalNetWorth: number; tieBreakRoll: number }
 type ThrowableEvent = { id: number; fromSessionId: string; toSessionId: string; object: ThrowableObject }
 type EarthquakeEvent = { id: number; spaceId: number; houses: number; ownerColor: string }
 type CityEffectEvent = { id: number; spaceId: number; effect: 'blackout' | 'protection' | 'world-cup' | 'earthquake' | 'generous' }
@@ -278,7 +278,7 @@ function App() {
   const feedbackPending = feedbackQueue.length > 0
   const animationSpeedControl = isHost && turnPhase !== 'ended' ? <div className="animation-speed-control" role="group" aria-label="Velocidade das animações da sala" title="Vale nas próximas animações"><span>RITMO</span><div>{ANIMATION_SPEEDS.map((speed) => <button key={speed} type="button" aria-pressed={animationSpeed === speed} onClick={() => room?.send('setAnimationSpeed', { speed })}>{speed.toLocaleString('pt-BR')}×</button>)}</div></div> : null
   const playerTokens = roomPlayers.length > 0
-    ? roomPlayers.flatMap((player, seatIndex) => player.isBankrupt ? [] : [{ id: player.sessionId, position: player.position, color: player.color ?? PLAYER_COLORS[seatIndex] ?? PLAYER_COLORS[0], seatIndex, cash: player.cash, characterType: player.characterType, activity: player.sessionId === activePlayerSessionId && !isMyTurn ? turnActivityLabel : '', emote: playerEmotes[player.sessionId] }])
+    ? roomPlayers.flatMap((player, seatIndex) => player.isBankrupt ? [] : [{ id: player.sessionId, name: player.name, position: player.position, color: player.color ?? PLAYER_COLORS[seatIndex] ?? PLAYER_COLORS[0], seatIndex, cash: player.cash, characterType: player.characterType, loanMarkerSpaceId: player.loanAmount > 0 ? player.loanMarkerSpaceId : 255, loanDue: player.loanDue, activity: player.sessionId === activePlayerSessionId && !isMyTurn ? turnActivityLabel : '', emote: playerEmotes[player.sessionId] }])
     : [0, 3, 6, 9].map((position, seatIndex) => ({ id: `preview-${seatIndex}`, position, color: PLAYER_COLORS[seatIndex] ?? PLAYER_COLORS[0], seatIndex, cash: 1_500_000, characterType: 'pawn' as CharacterType }))
   const auctionSeller = roomPlayers.find((player) => player.sessionId === auctionSellerSessionId)
   const auctionRequestSeller = roomPlayers.find((player) => player.sessionId === auctionRequestSellerSessionId)
@@ -289,7 +289,7 @@ function App() {
   const holdingsById = new Map(Array.from(roomProperties.entries()).map(([id, holding]) => [Number(id), holding]))
   const localPlayer = roomPlayers.find((player) => player.sessionId === localSessionId)
   const loanLimit = Math.floor((matchOptions.startingCash * 0.25) / 10_000) * 10_000
-  const loanRate = localPlayer ? 1 + localPlayer.loanCount * 0.5 : 1
+  const loanRate = localPlayer ? 0.2 + localPlayer.loanCount * 0.1 : 0.2
   const canTakeLoan = Boolean(localPlayer && turnPhase !== 'ended' && auctionId === 0 && localPlayer.loanAmount <= 0 && !localPlayer.loanUsedThisLap && loanLimit >= 10_000)
   useEffect(() => {
     if (!room || screen !== 'game') return
@@ -1442,9 +1442,9 @@ function App() {
           {showLoanPanel && turnPhase !== 'ended' && localPlayer && createPortal(<div className="loan-dialog-backdrop" role="presentation" onPointerDown={(event) => { if (event.target === event.currentTarget) setShowLoanPanel(false) }}>
             <aside className="loan-control" aria-label="Empréstimo ao banco" role="dialog" aria-modal="true" data-camera-drag="off">
               <header><strong>EMPRÉSTIMO AO BANCO</strong><button type="button" aria-label="Fechar empréstimo" onClick={() => setShowLoanPanel(false)}>×</button></header>
-            {localPlayer.loanAmount > 0 ? <><strong>EMPRÉSTIMO ATIVO</strong><span>{formatMoney(localPlayer.loanAmount)} · pagar {formatMoney(localPlayer.loanDue)} na Partida</span></> : <>
+            {localPlayer.loanAmount > 0 ? <><strong>EMPRÉSTIMO ATIVO</strong><span>{formatMoney(localPlayer.loanAmount)} · pagar {formatMoney(localPlayer.loanDue)} após uma volta até {boardSpaces[localPlayer.loanMarkerSpaceId]?.name ?? 'a casa marcada'}</span></> : <>
               <div className="loan-steps"><button type="button" aria-label="Diminuir empréstimo em R$ 100.000" disabled={!canTakeLoan || loanSelection <= 10_000} onClick={() => setLoanSelection((value) => Math.max(10_000, value - 100_000))}>−100 mil</button><button type="button" aria-label="Diminuir empréstimo em R$ 10.000" disabled={!canTakeLoan || loanSelection <= 10_000} onClick={() => setLoanSelection((value) => Math.max(10_000, value - 10_000))}>−10 mil</button><b>{formatMoney(Math.min(loanSelection, loanLimit))}</b><button type="button" aria-label="Aumentar empréstimo em R$ 10.000" disabled={!canTakeLoan || loanSelection >= loanLimit} onClick={() => setLoanSelection((value) => Math.min(loanLimit, value + 10_000))}>+10 mil</button><button type="button" aria-label="Aumentar empréstimo em R$ 100.000" disabled={!canTakeLoan || loanSelection >= loanLimit} onClick={() => setLoanSelection((value) => Math.min(loanLimit, value + 100_000))}>+100 mil</button></div>
-              <span>Limite {formatMoney(loanLimit)} · juros {Math.round(loanRate * 100)}% · pagar {formatMoney(Math.ceil(Math.min(loanSelection, loanLimit) * (1 + loanRate)))} na próxima Partida</span>
+              <span>Limite {formatMoney(loanLimit)} · juros {Math.round(loanRate * 100)}% · pagar {formatMoney(Math.ceil(Math.min(loanSelection, loanLimit) * (1 + loanRate)))} após uma volta completa</span>
               <button type="button" className="loan-submit" disabled={!canTakeLoan} onClick={() => room?.send('takeLoan', { amount: Math.min(loanSelection, loanLimit) })}>Pegar empréstimo</button>
             </>}
             {localPlayer.loanUsedThisLap && localPlayer.loanAmount <= 0 && <small>Você já contratou nesta volta; poderá contratar de novo ao passar pela Partida.</small>}

@@ -327,10 +327,12 @@ describe('sala privada', () => {
     const player = room.state.players.get(guest.sessionId)!
     const before = player.cash
     guest.send('takeLoan', { amount: 500_000 })
-    await waitFor(() => player.loanDue === 1_000_000)
+    await waitFor(() => player.loanDue === 600_000)
     expect(player.cash).toBe(before + 500_000)
     expect(player.loanAmount).toBe(500_000)
     expect(player.loanUsedThisLap).toBe(true)
+    expect(player.loanMarkerSpaceId).toBe(player.position)
+    expect(player.loanStepsRemaining).toBe(boardSpaces.length)
 
     guest.send('takeLoan', { amount: 10_000 })
     await new Promise((resolve) => setTimeout(resolve, 30))
@@ -338,7 +340,7 @@ describe('sala privada', () => {
     await colyseus.cleanup()
   })
 
-  it('cobra o empréstimo ao cruzar a Partida depois do bônus normal', async () => {
+  it('não considera teletransporte para renovar o empréstimo ou avançar a casa marcada', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
     const guest = await colyseus.connectTo(room, { name: 'Bia' })
@@ -347,21 +349,50 @@ describe('sala privada', () => {
     await waitFor(() => room.state.status === 'playing')
     const player = room.state.players.get(host.sessionId)!
     player.position = boardSpaces.length - 2
+    player.loanAmount = 10_000
+    player.loanDue = 12_000
+    player.loanUsedThisLap = true
+    player.loanMarkerSpaceId = player.position
+    player.loanStepsRemaining = boardSpaces.length
+    const privateRoom = room as unknown as {
+      startCardTeleport: (sessionId: string, target: typeof player, destinationId: number, description: string) => void
+    }
+
+    privateRoom.startCardTeleport(host.sessionId, player, 1, 'Teleporte de teste.')
+
+    expect(player.loanUsedThisLap).toBe(true)
+    expect(player.loanMarkerSpaceId).toBe(boardSpaces.length - 2)
+    expect(player.loanStepsRemaining).toBe(boardSpaces.length)
+    expect(player.loanAmount).toBe(10_000)
+    await colyseus.cleanup()
+  })
+
+  it('cobra o empréstimo quando o percurso restante desde a casa marcada termina', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    const player = room.state.players.get(host.sessionId)!
+    player.position = 4
     player.loanAmount = 100_000
-    player.loanDue = 200_000
+    player.loanDue = 120_000
     player.loanCount = 1
     player.loanUsedThisLap = true
+    player.loanMarkerSpaceId = 3
+    player.loanStepsRemaining = 1
     const privateRoom = room as unknown as {
-      movePlayer: (sessionId: string, target: typeof player, spaces: number) => void
-      collectLoanPayment: (sessionId: string, target: typeof player) => void
+      startPawnMovement: (sessionId: string, target: typeof player, startPosition: number) => void
     }
     const before = player.cash
-    privateRoom.movePlayer(host.sessionId, player, 3)
-    privateRoom.collectLoanPayment(host.sessionId, player)
-    expect(player.cash).toBe(before + START_BONUS - 200_000)
+    privateRoom.startPawnMovement(host.sessionId, player, 3)
+    await waitFor(() => player.loanAmount === 0, 2_000)
+    expect(player.cash).toBe(before - 120_000)
     expect(player.loanAmount).toBe(0)
     expect(player.loanDue).toBe(0)
-    expect(player.loanUsedThisLap).toBe(false)
+    expect(player.loanMarkerSpaceId).toBe(255)
+    expect(player.loanStepsRemaining).toBe(0)
     expect(room.state.turnPhase).not.toBe('debt')
     await colyseus.cleanup()
   })

@@ -1,3 +1,9 @@
+# Empréstimo: juros e casa marcada — concluído (2026-11-07)
+
+- Juros de 20%, aumentando 10 pontos percentuais por contratação; empréstimo disponível a qualquer momento. A casa onde a ficha está na contratação recebe feixe, nome e cor do jogador. Pagamento após percorrer uma volta completa até essa marca; teletransportes e movimento que já estava em andamento ao contratar não contam.
+- `npm run verify`: 423 testes em 74 arquivos e builds web/servidor aprovados. Playtest local confirmou empréstimo fora da vez, valor e juros no painel, feixe visível com nome/cor na cena e painel enquadrado no viewport móvel; console sem erros. Detalhes em [VALIDACAO.md](VALIDACAO.md).
+- Próximo passo: monitorar feedback da partida; não há pendência de implementação nesta frente.
+
 # Modo de times — revisão visual concluída (2026-11-07)
 
 - Cartões do HUD usam a mesma cor autoritativa das fichas. As equipes escolhem paletas prontas; o anfitrião muda Individual/Duplas/Trios no lobby; os assentos se agrupam por equipe, com ação direta para entrar e bot adicionado à equipe escolhida.
