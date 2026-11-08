@@ -1257,3 +1257,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - A UI podia prometer jogada extra após duplas usadas para sair da prisão, pois o estado de prisão já havia sido limpo. A condição usa a fase anterior e foi testada contra rolagem normal, saída da prisão, terceira dupla e dados distintos.
 - `npm run verify`: 444 testes e builds passaram. O cenário específico não foi repetido visualmente.
+
+# Dívida, leilão e segunda desconexão — 2026-11-07
+
+- Teste reproduziu leilão enfileirado iniciando com comprador em dívida; após a correção, reserva é devolvida e pode quitar a dívida. Outro teste reproduziu bot sem agir após reconexão manual e segunda queda; comandos internos agora avançam a jogada e a conexão antiga permanece bloqueada.
+- `npm run verify`: 446 testes e builds web/servidor passaram. São testes de integração local; não simulam latência ou perda de pacotes reais.

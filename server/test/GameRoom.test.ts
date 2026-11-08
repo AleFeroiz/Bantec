@@ -278,6 +278,42 @@ describe('sala privada', () => {
     await colyseus.cleanup()
   })
 
+  it('devolve lance pedido durante movimento se o comprador entra em dívida antes do leilão', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const seller = await colyseus.connectTo(room, { name: 'Ana' })
+    const buyer = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    seller.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    const property = boardSpaces.find((space) => space.kind === 'property')!
+    const title = new PropertyState()
+    title.ownerSessionId = seller.sessionId
+    room.state.properties.set(String(property.id), title)
+    room.state.activePlayerSessionId = buyer.sessionId
+    room.state.turnPhase = 'moving'
+    const player = room.state.players.get(buyer.sessionId)!
+    const balance = player.cash
+    buyer.send('auctionRequest', { propertyId: property.id, startingBid: 100_000 })
+    await waitFor(() => room.state.auctionRequestId > 0)
+    seller.send('auctionRespondRequest', { requestId: room.state.auctionRequestId, accept: true })
+    await waitFor(() => room.state.auctionRequestId === 0)
+    expect(player.cash).toBe(balance - 100_000)
+    room.state.turnPhase = 'debt'
+    room.state.debtAmount = balance + 100_000
+    const serverRoom = room as unknown as { beginQueuedAuctionIfSafe: () => void }
+    serverRoom.beginQueuedAuctionIfSafe()
+    expect(room.state.auctionId).toBe(0)
+    expect(player.cash).toBe(balance)
+    expect(room.state.turnPhase).toBe('debt')
+    player.cash = 50_000
+    room.state.debtAmount = 100_000
+    const queuedServer = room as unknown as { startAuctionNow: (options: { propertyId: number; sellerSessionId: string; startingBid: number; origin: 'requested'; bidderSessionId: string }) => void }
+    queuedServer.startAuctionNow({ propertyId: property.id, sellerSessionId: seller.sessionId, startingBid: 100_000, origin: 'requested', bidderSessionId: buyer.sessionId })
+    expect(room.state.auctionId).toBe(0)
+    expect(player.cash).toBe(50_000)
+    expect(room.state.turnPhase).not.toBe('debt')
+  })
+
   it('reserva pedido, converte em lance obrigatório e transfere o imóvel ao vencedor', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
@@ -1051,6 +1087,41 @@ describe('sala privada', () => {
     const emote = new Promise<{ sessionId: string }>((resolve) => returning.onMessage('game:emote', resolve))
     returning.send('emote', { emote: 'laugh' })
     await expect(emote).resolves.toMatchObject({ sessionId: oldSessionId })
+  })
+
+  it('bot continua jogando após segunda queda depois de reconexão por nome', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Lia' })
+    await colyseus.connectTo(room, { name: 'Nina' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    host.reconnection.enabled = false
+    void host.leave(false)
+    await waitFor(() => room.state.players.get(host.sessionId)?.isConnected === false)
+    const returning = await colyseus.sdk.joinById(room.roomId, { name: 'Lia' })
+    await waitFor(() => room.state.players.get(host.sessionId)?.controllerSessionId === returning.sessionId)
+    returning.reconnection.enabled = false
+    void returning.leave(false)
+    await waitFor(() => room.state.players.get(host.sessionId)?.isBotControlled === true)
+    room.state.activePlayerSessionId = host.sessionId
+    room.state.turnPhase = 'roll'
+    const before = room.state.diceSequence
+    room.messages.roll({ sessionId: host.sessionId, send: () => undefined } as never)
+    expect(room.state.diceSequence).toBe(before)
+    room.processBotStep()
+    expect(room.state.diceSequence).toBeGreaterThan(before)
+    const property = boardSpaces.find((space) => space.kind === 'property')!
+    const title = new PropertyState()
+    title.ownerSessionId = [...room.state.players.keys()].find((id) => id !== host.sessionId)!
+    room.state.properties.set(String(property.id), title)
+    room.state.turnPhase = 'debt'
+    room.state.debtAmount = 100_000
+    room.state.players.get(host.sessionId)!.cash = 50_000
+    const serverRoom = room as unknown as { startAuctionNow: (options: { propertyId: number; sellerSessionId: string; startingBid: number; origin: 'requested'; bidderSessionId: string }) => void }
+    serverRoom.startAuctionNow({ propertyId: property.id, sellerSessionId: title.ownerSessionId, startingBid: 100_000, origin: 'requested', bidderSessionId: host.sessionId })
+    expect(room.state.turnPhase).not.toBe('debt')
+    expect(room.state.players.get(host.sessionId)!.cash).toBe(50_000)
   })
 
   it('permite retomar uma cadeira offline mesmo quando os seis lugares estão ocupados', async () => {

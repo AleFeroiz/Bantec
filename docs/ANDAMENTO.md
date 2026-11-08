@@ -12,6 +12,7 @@
 - Corrigido encerramento: saída preserva o participante no placar e a sala volta ao descarte automático. Regressão reproduziu as duas falhas; 442 testes e builds passaram.
 - Corrigida descrição da vitória por falência, que exibia identificador interno como equipe; testes cobrem individual e equipe. `npm run verify`: 443 testes e builds passaram.
 - Corrigido aviso de jogada extra em duplas usadas para sair da prisão; teste direcionado cobre rolagem normal, prisão e terceira dupla. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
+- Corrigidos leilão enfileirado que podia iniciar com comprador em dívida e bot travado após reconexão manual e segunda queda. Testes cobrem devolução, quitação e bloqueio da conexão antiga; 446 testes e builds passaram. Próximo passo: investigar reserva pendente ao encerrar a partida.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)
