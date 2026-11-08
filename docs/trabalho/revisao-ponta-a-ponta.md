@@ -32,6 +32,7 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - Pedido de leilão aceito durante movimento podia iniciar com comprador que entrou em dívida ao chegar. Regressão reproduziu o problema; corrigida a validação ao iniciar e devolução da reserva. Se a devolução cobrir a dívida, o pagamento é processado.
 - Após reconexão manual por nome e segunda queda, o bot não avançava porque o identificador original era marcado como substituído. Corrigida a distinção de comandos internos; teste confirma que o bot age, a conexão antiga segue bloqueada e uma devolução de reserva pode quitar dívida. `npm run verify`: 446 testes e builds passaram.
 - Reproduzido e corrigido: ao encerrar com pedido de leilão pendente ou pedido aceito ainda enfileirado, a reserva era devolvida depois do cálculo patrimonial. Dois testes falharam antes da correção, verificando também a troca do vencedor, e passaram com a liquidação das reservas antes do placar.
+- Uma terceira integração cobre leilão já ativo durante encerramento: o lance reservado retorna antes do placar, o título não é transferido e o vencedor reflete o patrimônio recuperado. Revisão do ciclo de reconexão também conferiu os testes existentes de queda breve, retomada por identidade, segunda queda e sessão substituída.
 
 ## Próximo passo
 

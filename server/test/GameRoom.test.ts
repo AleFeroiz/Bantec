@@ -451,6 +451,37 @@ describe('sala privada', () => {
     expect(serverRoom.queuedAuctionStart).toBeNull()
   })
 
+  it('devolve lance de leilão ativo antes de calcular o patrimônio final', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const seller = await colyseus.connectTo(room, { name: 'Ana' })
+    const bidder = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    seller.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    const property = boardSpaces.find((space) => space.kind === 'property')!
+    const title = new PropertyState()
+    title.ownerSessionId = seller.sessionId
+    room.state.properties.set(String(property.id), title)
+    const sellerPlayer = room.state.players.get(seller.sessionId)!
+    const bidderPlayer = room.state.players.get(bidder.sessionId)!
+    const balance = bidderPlayer.cash
+    sellerPlayer.cash = balance - property.price - 20_000
+    seller.send('auctionStart', { propertyId: property.id, startingBid: 100_000 })
+    await waitFor(() => room.state.auctionId > 0)
+    bidder.send('auctionBid', { auctionId: room.state.auctionId, amount: 100_000 })
+    await waitFor(() => room.state.auctionHighestBidderSessionId === bidder.sessionId)
+    expect(bidderPlayer.cash).toBe(balance - 100_000)
+
+    const serverRoom = room as unknown as { finishMatch: (reason: 'timeout') => void }
+    serverRoom.finishMatch('timeout')
+
+    expect(bidderPlayer.cash).toBe(balance)
+    expect(bidderPlayer.finalCash).toBe(balance)
+    expect(bidderPlayer.finalNetWorth).toBe(balance)
+    expect(room.state.winnerSessionId).toBe(bidder.sessionId)
+    expect(room.state.auctionId).toBe(0)
+  })
+
   it('permite empréstimo fora da vez, aplica limite e bloqueia outro ativo', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })

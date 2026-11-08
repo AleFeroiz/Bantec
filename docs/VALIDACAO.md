@@ -1267,4 +1267,5 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Teste Colyseus reproduziu saldo final R$ 100.000 abaixo do correto quando a partida terminava com pedido de leilão pendente ou aceito durante movimento; a segunda combinação também escolhia a pessoa errada como vencedora. A regressão falhou antes da correção nos dois casos.
 - `finishMatch` agora interrompe relógios e liquida reservas de leilões antes de calcular caixa final, patrimônio e vencedor. Os dois cenários verificam devolução, caixa final, vencedor esperado e limpeza do pedido/enfileiramento; passaram no teste direcionado.
-- `npm run verify` passou com 448 testes em 76 arquivos; builds Vite e servidor passaram. O Vite manteve o aviso do bundle principal acima de 500 kB (1.495,38 kB; gzip 428,07 kB).
+- Cobertura adicional para leilão ativo confirma que o lance é devolvido antes do placar, a disputa é encerrada e o maior patrimônio vence.
+- `npm run verify` passou com 449 testes em 76 arquivos; builds Vite e servidor passaram. O Vite manteve o aviso do bundle principal acima de 500 kB (1.495,38 kB; gzip 428,07 kB).
