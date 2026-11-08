@@ -47,6 +47,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
   private supervisionStartsAt = 0
   private turnTimerKey = ''
   private presentationTimers = new Set<ReturnType<typeof setTimeout>>()
+  private pendingAnimationResolution: { key: string; action: () => void } | null = null
   private pendingCardPayments: { sessionId: string; amount: number; reason: string }[] = []
   private pendingCardPaymentActorSessionId = ''
   private cardTargetRevealPending = false
@@ -1386,7 +1387,15 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     if (this.state.status !== 'playing' || this.state.turnSeconds !== 0) return
     const phase = this.state.turnPhase
     const key = `${this.state.turnNumber}:${this.state.activePlayerSessionId}:${phase}`
-    if (key !== this.turnTimerKey || !['roll', 'purchase', 'buyback', 'buyback-upgrade', 'company-roll', 'start-upgrade', 'resolve', 'jail', 'world-cup', 'world-tour', 'card-target', 'debt'].includes(phase)) return
+    if (key !== this.turnTimerKey || !['roll', 'rolling', 'moving', 'purchase', 'buyback', 'buyback-upgrade', 'company-roll', 'start-upgrade', 'resolve', 'jail', 'world-cup', 'world-tour', 'card-target', 'debt'].includes(phase)) return
+    if (phase === 'rolling' || phase === 'moving') {
+      const pending = this.pendingAnimationResolution
+      if (!pending || pending.key !== key) return
+      this.pendingAnimationResolution = null
+      pending.action()
+      this.beginQueuedAuctionIfSafe()
+      return
+    }
     this.state.turnSeconds = 1
     this.updateTurnClock()
   }
@@ -1540,6 +1549,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     this.stopBotController()
     for (const timer of this.presentationTimers) clearTimeout(timer)
     this.presentationTimers.clear()
+    this.pendingAnimationResolution = null
   }
 
   private startBotController() {
@@ -2434,8 +2444,14 @@ export class GameRoom extends Room<{ state: LobbyState }> {
   }
 
   private schedulePresentation(delayMs: number, action: () => void) {
+    const animationPhase = this.state.turnPhase === 'rolling' || this.state.turnPhase === 'moving'
+    const animationResolution = animationPhase
+      ? { key: `${this.state.turnNumber}:${this.state.activePlayerSessionId}:${this.state.turnPhase}`, action }
+      : null
+    if (animationResolution) this.pendingAnimationResolution = animationResolution
     const timer = setTimeout(() => {
       this.presentationTimers.delete(timer)
+      if (animationResolution && this.pendingAnimationResolution === animationResolution) this.pendingAnimationResolution = null
       if (this.state.status === 'playing') {
         action()
         this.beginQueuedAuctionIfSafe()

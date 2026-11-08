@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { GameRoom } from '../src/rooms/GameRoom.js'
 import { createServer } from 'node:net'
 import appConfig from '../src/app.config.js'
-import type { LobbyState } from '../src/rooms/schema/LobbyState.js'
+import type { LobbyPlayerState, LobbyState } from '../src/rooms/schema/LobbyState.js'
 import { PropertyState } from '../src/rooms/schema/LobbyState.js'
 import { boardSpaces, getLineTitleIds } from '../../shared/board.js'
 import { EVENT_CARDS, type EventCard } from '../../shared/cards.js'
@@ -2711,6 +2711,84 @@ describe('sala privada', () => {
     expect(room.state.turnPhase).toBe('resolve')
     server.recoverExpiredTurn()
     expect(room.state.turnPhase).toBe('resolve')
+  })
+
+  it('recupera rolagem travada na animação sem sortear outro resultado', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const sessionId = room.state.activePlayerSessionId
+    const player = room.state.players.get(sessionId)!
+    const startPosition = player.position
+    const sequence = room.state.diceSequence
+    const server = room as unknown as { rollForPlayer: (sessionId: string, dice: [number, number]) => void; recoverExpiredTurn: () => void; turnTimerKey: string }
+    server.rollForPlayer(sessionId, [1, 2])
+    expect(room.state.turnPhase).toBe('rolling')
+
+    room.state.turnSeconds = 0
+    server.turnTimerKey = `${room.state.turnNumber}:${sessionId}:rolling`
+    server.recoverExpiredTurn()
+
+    expect(room.state.diceSequence).toBe(sequence + 1)
+    expect(player.position).toBe((startPosition + 3) % boardSpaces.length)
+    expect(room.state.turnPhase).toBe('moving')
+  })
+
+  it('recupera movimento travado na animação e resolve a chegada uma vez', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const sessionId = room.state.activePlayerSessionId
+    const player = room.state.players.get(sessionId)!
+    const startPosition = 0
+    const destination = boardSpaces.find((space) => space.kind === 'property')!
+    player.position = destination.id
+    room.state.turnPhase = 'moving'
+    room.state.turnSeconds = 0
+    const server = room as unknown as { startPawnMovement: (sessionId: string, player: LobbyPlayerState, startPosition: number) => void; recoverExpiredTurn: () => void; turnTimerKey: string }
+    server.startPawnMovement(sessionId, player, startPosition)
+    server.turnTimerKey = `${room.state.turnNumber}:${sessionId}:moving`
+
+    server.recoverExpiredTurn()
+    server.recoverExpiredTurn()
+
+    expect(room.state.turnPhase).toBe('purchase')
+    expect(room.state.pendingPropertyId).toBe(destination.id)
+    expect(room.state.properties.get(String(destination.id))?.ownerSessionId ?? '').toBe('')
+  })
+
+  it('recupera teletransporte de carta travado e preserva a escolha padrão da Copa', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const sessionId = room.state.activePlayerSessionId
+    const player = room.state.players.get(sessionId)!
+    const venue = boardSpaces.find((space) => space.kind === 'property')!
+    const holding = new PropertyState()
+    holding.ownerSessionId = sessionId
+    room.state.properties.set(String(venue.id), holding)
+    const server = room as unknown as { startCardTeleport: (sessionId: string, player: LobbyPlayerState, destinationId: number, description: string, randomizeWorldCupTimeout?: boolean) => void; recoverExpiredTurn: () => void; turnTimerKey: string; worldCupChoiceRandomDefault: boolean }
+    server.startCardTeleport(sessionId, player, 20, 'Carta Sede da Copa.', true)
+    room.state.turnSeconds = 0
+    server.turnTimerKey = `${room.state.turnNumber}:${sessionId}:moving`
+
+    server.recoverExpiredTurn()
+
+    expect(room.state.turnPhase).toBe('world-cup')
+    expect(room.state.pendingPropertyId).toBe(255)
+    expect(server.worldCupChoiceRandomDefault).toBe(true)
   })
 
   it('rola automaticamente após 20 segundos e recusa uma compra após a janela de 15 segundos', async () => {

@@ -93,7 +93,7 @@ Pedido: ordem inicial aleatória, configurações de economia e prazos no lobby,
 
 # Inatividade e recuperação de turno — investigação em andamento (2026-11-04)
 
-Pedido: após 30 segundos sem interação, bot assume e devolve controle ao toque; verificar periodicamente turnos travados. Implementado: servidor detecta 30 segundos sem input e cede ao bot; toque ou tecla devolve controle com interceptação do primeiro evento. A cada 15 segundos, decisões vencidas em zero são novamente resolvidas com a ação padrão. Testes cobrem tomada e retorno de controle e compra presa em zero. Desktop validou aviso e retorno; revisão móvel do aviso pendente. As fases de animação não são recuperadas pelo watchdog.
+Pedido: após 30 segundos sem interação, bot assume e devolve controle ao toque; verificar periodicamente turnos travados. Implementado: servidor detecta 30 segundos sem input e cede ao bot; toque ou tecla devolve controle com interceptação do primeiro evento. A cada 15 segundos, decisões vencidas em zero são novamente resolvidas com a ação padrão. O watchdog também retoma rolagem, movimento e teletransporte travados executando a ação autoritativa já programada; regressões cobrem os três casos. Desktop validou aviso e retorno; revisão móvel do aviso pendente.
 
 # Lobby visual 3D — em andamento (2026-11-04)
 
