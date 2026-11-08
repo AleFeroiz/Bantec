@@ -1,7 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
-import { clearLastRoom, configureRoomReconnection, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
+import { clearLastRoom, configureRoomReconnection, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
 
 describe('room reconnection recovery', () => {
+  it('preserva o nome de cada aba mesmo quando outra altera a última sala compartilhada', async () => {
+    const values = new Map<string, string>()
+    const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) } }
+    saveLastRoom(storage, { roomCode: 'ABCDE', name: 'Ana', reconnectionToken: 'a' })
+    saveLastRoom(storage, { roomCode: 'ABCDE', name: 'Bia', reconnectionToken: 'b' })
+    expect(readLastRoom(storage)?.name).toBe('Bia')
+    expect(getSessionRecoveryName('Ana')).toBe('Ana')
+    expect(getSessionRecoveryName('Bia')).toBe('Bia')
+    const join = vi.fn().mockResolvedValue({ id: 'cadeira de Ana' })
+    await recoverRoomAfterRetries(async () => { throw new Error('token expirado') }, () => join('ABCDE', getSessionRecoveryName('Ana')))
+    expect(join).toHaveBeenCalledWith('ABCDE', 'Ana')
+  })
   it('stores and restores the last room identity and token for a new visit', () => {
     const values = new Map<string, string>()
     const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) }, removeItem: (key: string) => { values.delete(key) } }
@@ -9,6 +21,18 @@ describe('room reconnection recovery', () => {
     saveLastRoom(storage, lastRoom)
     expect(readLastRoom(storage)).toEqual(lastRoom)
     clearLastRoom(storage)
+    expect(readLastRoom(storage)).toBeNull()
+  })
+
+  it('não apaga a última sala de outra aba quando a primeira sai', () => {
+    const values = new Map<string, string>()
+    const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) }, removeItem: (key: string) => { values.delete(key) } }
+    const ana = { roomCode: 'ABCDE', name: 'Ana', reconnectionToken: 'a' }
+    const bia = { roomCode: 'ABCDE', name: 'Bia', reconnectionToken: 'b' }
+    saveLastRoom(storage, bia)
+    clearLastRoom(storage, ana)
+    expect(readLastRoom(storage)).toEqual(bia)
+    clearLastRoom(storage, bia)
     expect(readLastRoom(storage)).toBeNull()
   })
 

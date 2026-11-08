@@ -1228,3 +1228,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Durante a Volta ao Brasil, quem observa via uma instrução para tocar no tabuleiro. Depois da correção, dois clientes locais mostraram instrução de escolha para a jogadora ativa e o nome dela com orientação para aguardar à outra pessoa. Consoles sem erros ou avisos.
 - Teste de texto cobre também a Copa e a perspectiva ativa; a Copa não foi repetida visualmente. `npm run verify`: 438 testes e builds web/servidor passaram.
+
+# Recuperação em abas diferentes — 2026-11-07
+
+- Com duas identidades gravadas no mesmo armazenamento, a aba ativa conserva o próprio nome ao tentar recuperação. A saída de uma sessão só apaga a lembrança se sala, nome e token corresponderem; o teste de exclusão falhou antes e passou depois.
+- `npm run verify`: 440 testes e builds web/servidor passaram. A queda prolongada com fallback por identidade não foi repetida em dois navegadores nesta sessão.

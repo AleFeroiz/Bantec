@@ -6,6 +6,11 @@ const LAST_ROOM_KEY = 'bantec:last-room'
 
 export type LastRoom = { roomCode: string; name: string; reconnectionToken: string }
 
+// The last-room record is shared across tabs; an active session keeps its own name.
+export function getSessionRecoveryName(currentName: string) {
+  return normalizePlayerName(currentName) ?? ''
+}
+
 export function readLastRoom(storage: Pick<Storage, 'getItem'> | null): LastRoom | null {
   try {
     const value = storage?.getItem(LAST_ROOM_KEY)
@@ -26,8 +31,14 @@ export function saveLastRoom(storage: Pick<Storage, 'setItem'> | null, room: Las
   try { storage?.setItem(LAST_ROOM_KEY, JSON.stringify(room)) } catch { /* Storage may be unavailable. */ }
 }
 
-export function clearLastRoom(storage: Pick<Storage, 'removeItem'> | null) {
-  try { storage?.removeItem(LAST_ROOM_KEY) } catch { /* Storage may be unavailable. */ }
+export function clearLastRoom(storage: Pick<Storage, 'getItem' | 'removeItem'> | null, expected?: LastRoom) {
+  try {
+    if (expected) {
+      const saved = readLastRoom(storage)
+      if (!saved || saved.roomCode !== expected.roomCode || saved.name !== expected.name || saved.reconnectionToken !== expected.reconnectionToken) return
+    }
+    storage?.removeItem(LAST_ROOM_KEY)
+  } catch { /* Storage may be unavailable. */ }
 }
 
 export function configureRoomReconnection(room: { reconnection: { maxRetries: number; minUptime: number } }) {

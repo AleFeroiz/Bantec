@@ -9,7 +9,7 @@ import { EVENT_CARDS } from '../../shared/cards'
 import { scheduleSceneLoad } from './sceneLoading'
 import { roomClient, roomServerUrl } from './roomClient'
 import { checkServerHealth } from './serverHealth'
-import { clearLastRoom, configureRoomReconnection, readLastRoom, recoverRoomAfterRetries, saveLastRoom } from './roomRecovery'
+import { clearLastRoom, configureRoomReconnection, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, saveLastRoom } from './roomRecovery'
 import { finalScoreMetrics, rankFinalScore, rankFinalTeamScore, scoreCriteria } from './scoreCriteria'
 import { getLobbyPlayerEntries } from './lobbySnapshot'
 import { canAffordPurchase } from './purchaseActions'
@@ -812,7 +812,7 @@ function App() {
     const handleDrop = () => setIsReconnecting(true)
     const handleReconnect = () => {
       setIsReconnecting(false)
-      const playerName = readLastRoom(getLocalStorage())?.name ?? name.trim()
+      const playerName = getSessionRecoveryName(name)
       saveLastRoom(getLocalStorage(), { roomCode: room.roomId, name: playerName, reconnectionToken: room.reconnectionToken })
     }
     const handlePlayerEmote = (payload: { sessionId?: unknown; emote?: unknown }) => {
@@ -883,7 +883,7 @@ function App() {
         if (recoveringRoom.current === room) return
         recoveringRoom.current = room
         setIsReconnecting(true)
-        const playerName = readLastRoom(getLocalStorage())?.name ?? room.state.players.get(room.sessionId)?.name ?? name.trim()
+        const playerName = getSessionRecoveryName(name)
         const recovery = await recoverRoomAfterRetries(
           () => roomClient.reconnect(room.reconnectionToken),
           () => roomClient.joinById(room.roomId, { name: playerName }),
@@ -1043,8 +1043,8 @@ function App() {
   }
 
   async function leaveRoom() {
-    clearLastRoom(getLocalStorage())
     const currentRoom = activeRoom.current
+    if (currentRoom) clearLastRoom(getLocalStorage(), { roomCode: currentRoom.roomId, name: getSessionRecoveryName(name), reconnectionToken: currentRoom.reconnectionToken })
     activeRoom.current = null
     setRoom(null)
     setPlayerEmotes({})
