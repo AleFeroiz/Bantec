@@ -6,6 +6,7 @@ export type LobbyStatus = 'waiting' | 'playing' | 'ended'
 export type CharacterType = 'pawn' | 'car' | 'motorcycle' | 'airplane' | 'highHeel' | 'train' | 'topHat' | 'piggyBank' | 'ship' | 'rubberDuck' | 'dog' | 'cat' | 'cow' | 'penguin'
 
 export const MAX_ROOM_PLAYERS = 6
+export const DUPLICATE_PLAYER_NAME_ERROR = 4201
 
 export const CHARACTER_OPTIONS: ReadonlyArray<{ id: CharacterType; label: string }> = [
   { id: 'pawn', label: 'Peão' },

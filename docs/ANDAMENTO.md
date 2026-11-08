@@ -1,3 +1,9 @@
+# Revisão de ponta a ponta — em andamento (2026-11-07)
+
+- Revisão de regras, rede, interface e testes em andamento; escopo e evidências em [revisao-ponta-a-ponta.md](trabalho/revisao-ponta-a-ponta.md).
+- Decisão do usuário: impedir nomes repetidos na sala. Implementação validada com 429 testes, builds e dois clientes no navegador; reconexão por nome exato preservada. Próximo passo: revisar concorrência e demais fluxos de conexão, partida e interface desktop/mobile.
+- Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
+
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)
 
 - Mudança confirmada: cada jogador começa com um ingresso; cada cruzamento válido pela Partida concede outro. Ingressos acumulam e cada aposta consome um. Jogar sem ingresso fica bloqueado. O painel exibe a contagem com ícone próprio.

@@ -1194,3 +1194,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 - A propriedade própria escolhida para sediar a Copa precisa ser uma cidade. A tentativa de selecionar uma companhia retorna erro sem mudar a sede ou a contagem de edições; os destaques da UI e a escolha automática de bots também excluem companhias.
 - Testes direcionados: 95 passaram (incluindo GameRoom); `npm run verify`: 406 testes em 72 arquivos aprovados, build Vite e build do servidor concluídos. O bundle principal continua gerando o aviso de tamanho acima de 500 kB (1.482,96 kB; gzip 423,85 kB).
 - No navegador em sala local, comprei AgroBrasil e, sem possuir cidade, usei os controles DEV para chegar à Copa. A partida avançou sem abrir uma seleção de sede. Vite em 5173 e Colyseus temporário em 2568 foram encerrados; 2567 estava ocupada por um serviço não identificado e foi preservada.
+
+# Revisão de entrada — 2026-11-07
+
+- O teste de nome normalizado duplicado falhou antes da correção e passou depois. Testes adicionais cobrem colisões com bots e entradas simultâneas; a suíte completa anterior passou com 429 testes e ambos os builds.
+- Em dois clientes locais, nome duplicado mostrou a mensagem específica e um nome diferente entrou na sala. A revisão de partida, rede degradada e responsividade continua na nota [revisao-ponta-a-ponta.md](trabalho/revisao-ponta-a-ponta.md).

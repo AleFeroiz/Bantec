@@ -3,7 +3,7 @@ import { BettingPanel } from './BettingPanel'
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { CloseCode, type Room } from '@colyseus/sdk'
-import { CHARACTER_OPTIONS, MAX_ROOM_PLAYERS, type CharacterType, type GameMode, type LobbyPlayer } from '../../shared/lobby'
+import { CHARACTER_OPTIONS, DUPLICATE_PLAYER_NAME_ERROR, MAX_ROOM_PLAYERS, type CharacterType, type GameMode, type LobbyPlayer } from '../../shared/lobby'
 import { getMatchEndSummary, type MatchEndReason } from '../../shared/game'
 import { EVENT_CARDS } from '../../shared/cards'
 import { scheduleSceneLoad } from './sceneLoading'
@@ -982,8 +982,10 @@ function App() {
     try {
       const nextRoom = await roomClient.joinById(normalizedRoomCode, { name: name.trim() })
       connectToRoom(nextRoom, name.trim())
-    } catch {
-      setError('Não encontrei essa sala. Confira o código e tente novamente.')
+    } catch (error) {
+      setError(error && typeof error === 'object' && 'code' in error && error.code === DUPLICATE_PLAYER_NAME_ERROR
+        ? 'Esse nome já está em uso nesta sala. Escolha outro nome.'
+        : 'Não foi possível entrar na sala. Confira o código, o nome e sua conexão e tente novamente.')
     } finally {
       setIsConnecting(false)
     }

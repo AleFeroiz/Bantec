@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto'
-import { CloseCode, Client, Room } from '@colyseus/core'
-import { MAX_ROOM_PLAYERS, type GameMode } from '../../../shared/lobby.js'
+import { CloseCode, Client, Room, ServerError } from '@colyseus/core'
+import { DUPLICATE_PLAYER_NAME_ERROR, MAX_ROOM_PLAYERS, type GameMode } from '../../../shared/lobby.js'
 import { isCharacterType, isGameMode, normalizePlayerName } from '../../../shared/lobby.js'
 import { AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_MIN_BID_INCREMENT, AUCTION_REQUEST_SECONDS, CLASSIC_MATCH_SECONDS, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS, LOAN_MINIMUM, MATCH_DURATIONS, PAWN_STEP_ANIMATION_DURATION_MS, PAWN_TELEPORT_ANIMATION_DURATION_MS, PROPERTY_BUILD_LEVELS, PROPERTY_HOTEL_LEVEL, START_BONUS, TURN_ROLL_SECONDS, applyRentMultiplier, areDiceDoubles, bankReturnValue, buildingSaleValue, calculateCompanyRent, calculateNetWorth, calculateRent, canBuildHotel, canBuildLevelAfterFirstLap, canBuildProperty, canReturnPropertyToBank, canSellBuilding, chooseFestivalCityIds, constructionCost, describeLanding, divideBalances, forcedBuybackCost, getAnimationDuration, getMonopolyWinReason, getWorldCupRentMultiplier, hasLiquidatableAssets, hotelConstructionCost, isAnimationSpeed, isMatchDuration, loanLimit, loanRepayment, loanStepsRemainingAfterMovement, movePosition, taxForSpace, type MatchEndReason } from '../../../shared/game.js'
 import { boardSpaces } from '../../../shared/board.js'
@@ -81,6 +81,9 @@ export class GameRoom extends Room<{ state: LobbyState }> {
   onAuth(_client: Client, options: { name?: unknown }) {
     const name = normalizePlayerName(options.name)
     if (!name) return false
+    if (Array.from(this.state.players.values()).some((player) => player.name === name && (player.isBot || player.isConnected))) {
+      throw new ServerError(DUPLICATE_PLAYER_NAME_ERROR, 'Nome já está em uso nesta sala. Escolha outro nome.')
+    }
     if (this.state.status === 'waiting') {
       const returning = Array.from(this.state.players.values()).filter((player) => !player.isBot && !player.isConnected && player.name === name)
       return returning.length === 1 || this.state.players.size < MAX_ROOM_PLAYERS
@@ -299,7 +302,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       }
       this.botSequence += 1
       let sessionId = `bot-${this.botSequence}`
-      while (this.state.players.has(sessionId)) {
+      while (this.state.players.has(sessionId) || Array.from(this.state.players.values()).some((player) => player.name === `Bot ${this.botSequence}`)) {
         this.botSequence += 1
         sessionId = `bot-${this.botSequence}`
       }

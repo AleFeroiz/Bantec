@@ -60,6 +60,34 @@ describe('sala privada', () => {
 
   afterEach(() => vi.restoreAllMocks())
 
+  it('rejeita nome normalizado já conectado sem impedir nomes distintos', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    await colyseus.connectTo(room, { name: 'Ana Maria' })
+    await expect(colyseus.connectTo(room, { name: ' Ana   Maria ' })).rejects.toThrow('Nome já está em uso')
+    await colyseus.connectTo(room, { name: 'ana maria' })
+    expect(room.state.players.size).toBe(2)
+  })
+
+  it('evita conflito de nomes entre pessoas e bots', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Bot 1' })
+    host.send('addBot')
+    await waitFor(() => room.state.players.size === 2)
+    expect([...room.state.players.values()].map((player) => player.name)).toEqual(['Bot 1', 'Bot 2'])
+    await expect(colyseus.connectTo(room, { name: 'Bot 2' })).rejects.toThrow('Nome já está em uso')
+  })
+
+  it('aceita somente uma entrada simultânea com o mesmo nome', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    await colyseus.connectTo(room, { name: 'Anfitriã' })
+    const results = await Promise.allSettled([
+      colyseus.connectTo(room, { name: 'Visitante' }),
+      colyseus.connectTo(room, { name: 'Visitante' }),
+    ])
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+    expect([...room.state.players.values()].filter((player) => player.name === 'Visitante')).toHaveLength(1)
+  })
+
   it('valida equipes completas no servidor e sincroniza formato e cores de equipe', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
