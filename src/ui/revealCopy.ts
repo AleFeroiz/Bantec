@@ -1,5 +1,9 @@
 export type RevealKind = 'event' | 'world-cup' | 'world-tour'
 
+export function shouldShowLocalNoTarget(isLocalPlayer: boolean, hasNoLocalTarget: boolean) {
+  return isLocalPlayer && hasNoLocalTarget
+}
+
 export function getSpecialRevealCopy(kind: Exclude<RevealKind, 'event'>, isLocalPlayer: boolean, playerName: string, multiplier: string) {
   const player = playerName || 'A pessoa da vez'
   if (kind === 'world-tour') return isLocalPlayer

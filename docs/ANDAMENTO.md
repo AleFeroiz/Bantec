@@ -7,6 +7,7 @@
 - Playtest DEV confirmou compra de terreno com duas casas e desconto de saldo. Aviso de duplas atribuía a jogada ao jogador local mesmo na vez do bot; texto corrigido. Teste cobre as duas perspectivas; mensagem local revista em partida. `npm run verify`: 437 testes e builds passaram.
 - Revelações da Volta e Copa exibiam instruções de escolha também a espectadores; cópia ajustada para identificar quem escolhe. Dois clientes validaram as perspectivas na Volta; Copa coberta por teste de texto. `npm run verify`: 438 testes e builds passaram.
 - Correção para abas compartilhando armazenamento: reconexão mantém o nome da própria aba e saída não apaga lembrança de outra sessão; regressão e `npm run verify` passaram com 440 testes e builds. Fallback após interrupção prolongada não foi repetido manualmente.
+- Corrigido aviso de alvo inexistente exibido a espectadores com base nos próprios bens; teste direcionado e `npm run verify` passaram com 441 testes e builds. O cenário específico ainda não foi repetido visualmente.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

@@ -41,7 +41,7 @@ import { adjustMoneyValue } from './moneyStepper'
 import { DEFAULT_GRAPHICS_QUALITY, type GraphicsQuality } from './graphicsQuality'
 import { isPlayerEmote, PLAYER_EMOTES, type PlayerEmote } from '../../shared/playerEmotes'
 import { getThrowableLabel, getThrowableSymbol, isThrowableObject, THROWABLES, THROW_COOLDOWN_MS, THROW_IMPACT_DURATION_MS, THROW_PROJECTILE_DURATION_MS, type ThrowableObject } from '../../shared/throwables'
-import { getRevealKicker, getSpecialRevealCopy } from './revealCopy'
+import { getRevealKicker, getSpecialRevealCopy, shouldShowLocalNoTarget } from './revealCopy'
 import { shouldOpenAuctionPanel } from './auctionPanelState'
 import { HOME_REGION_ROUTE } from './homeRegionRoute'
 import { buildRoomInviteUrl, getRoomInviteCode, normalizeRoomCode } from './roomInvite'
@@ -447,7 +447,7 @@ function App() {
         : null
   const revealKey = revealKind ? `${turnNumber}:${activePlayerSessionId}:${revealKind}:${activeCardTitle}` : ''
   const isOpponent = (candidate: SyncedPlayer) => teamFormat === 'individual' || candidate.teamId !== localPlayer?.teamId
-  const cardHasNoTarget = turnPhase === 'card-target' && (propertyTargetCard && cardPropertyChoices.length === 0 || activeCardId === 'thief' && !roomPlayers.some((candidate) => candidate.sessionId !== localSessionId && !candidate.isBankrupt && isOpponent(candidate)) || (activeCardId === 'swap' || activeCardId === 'communism') && roomPlayers.filter((candidate) => !candidate.isBankrupt).length < 2)
+  const cardHasNoTarget = shouldShowLocalNoTarget(isMyTurn, turnPhase === 'card-target' && (propertyTargetCard && cardPropertyChoices.length === 0 || activeCardId === 'thief' && !roomPlayers.some((candidate) => candidate.sessionId !== localSessionId && !candidate.isBankrupt && isOpponent(candidate)) || (activeCardId === 'swap' || activeCardId === 'communism') && roomPlayers.filter((candidate) => !candidate.isBankrupt).length < 2))
   const currentReveal = revealKind ? { key: revealKey, kind: revealKind, cardId: activeCardId, title: activeCardTitle, description: activeCardDescription, noTarget: cardHasNoTarget || (revealSnapshot?.key === revealKey && revealSnapshot.noTarget), actorName: activePlayer?.name ?? '', isLocal: isMyTurn, multiplier: getWorldCupRentMultiplier(worldCupHostCount + 1, matchOptions.cupInitialMultiplier).toLocaleString('pt-BR') } : null
   const visibleReveal = currentReveal ?? revealSnapshot
   const showTransientReveal = Boolean(visibleReveal && visibleReveal.key !== dismissedRevealKey)

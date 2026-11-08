@@ -1233,3 +1233,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Com duas identidades gravadas no mesmo armazenamento, a aba ativa conserva o próprio nome ao tentar recuperação. A saída de uma sessão só apaga a lembrança se sala, nome e token corresponderem; o teste de exclusão falhou antes e passou depois.
 - `npm run verify`: 440 testes e builds web/servidor passaram. A queda prolongada com fallback por identidade não foi repetida em dois navegadores nesta sessão.
+
+# Aviso de alvo para espectadores — 2026-11-07
+
+- A ausência de opções era calculada a partir da carteira local e aparecia mesmo a quem observava outra pessoa. O aviso calculado localmente agora aparece somente à pessoa da vez; teste cobre jogador e espectador.
+- `npm run verify`: 441 testes e builds passaram. O cenário específico de carta com alvo não foi repetido visualmente nesta sessão.

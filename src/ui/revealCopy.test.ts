@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { getRevealKicker, getSpecialRevealCopy } from './revealCopy.js'
+import { getRevealKicker, getSpecialRevealCopy, shouldShowLocalNoTarget } from './revealCopy.js'
 
 describe('títulos das revelações', () => {
+  it('não interpreta bens do espectador como opções da pessoa da vez', () => {
+    expect(shouldShowLocalNoTarget(false, true)).toBe(false)
+    expect(shouldShowLocalNoTarget(true, true)).toBe(true)
+    expect(shouldShowLocalNoTarget(true, false)).toBe(false)
+  })
   it('dá instruções apenas à pessoa que pode escolher', () => {
     expect(getSpecialRevealCopy('world-tour', true, 'Ana', '2')).toEqual({ title: 'Escolha para onde viajar', description: 'Toque em uma casa iluminada. Propriedades de outras pessoas ficam indisponíveis.' })
     expect(getSpecialRevealCopy('world-tour', false, 'Bot 1', '2')).toEqual({ title: 'Bot 1 escolhe o destino', description: 'Aguarde a escolha da casa de destino.' })
