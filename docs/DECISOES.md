@@ -8,6 +8,8 @@ Após criar ou entrar na sala, mostrar até seis fichas 3D em plataformas, com n
 
 ## Confirmadas e vigentes
 
+- **Recuperação de cadeira (2026-11-07):** o usuário confirmou manter a retomada simples pelo código da sala e nome exato da pessoa desconectada, ciente de que quem conhece ambos pode assumir essa cadeira.
+
 - **Enquadramento desktop (2026-11-07):** reduzir o tabuleiro na vista inicial para afastá-lo dos cartões de participantes, mantendo os cartões onde estão; preservar o enquadramento móvel e os controles de câmera.
 
 - **Nomes únicos na sala (2026-11-07):** impedir nomes repetidos para evitar recuperação ambígua de cadeira. Comparam-se nomes normalizados, preservando a distinção entre maiúsculas e minúsculas já adotada na reconexão; bots também recebem nomes livres. A recuperação por código e nome de uma cadeira desconectada permanece disponível.

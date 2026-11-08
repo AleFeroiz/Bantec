@@ -319,6 +319,30 @@ describe('sala privada', () => {
     await colyseus.cleanup()
   })
 
+  it('mantém o pedido de leilão e permite ao bot responder após queda do vendedor', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const seller = await colyseus.connectTo(room, { name: 'Ana' })
+    const buyer = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    seller.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    const property = boardSpaces.find((space) => space.kind === 'property')!
+    const title = new PropertyState()
+    title.ownerSessionId = seller.sessionId
+    room.state.properties.set(String(property.id), title)
+    const initialCash = room.state.players.get(buyer.sessionId)!.cash
+    buyer.send('auctionRequest', { propertyId: property.id, startingBid: 600_000 })
+    await waitFor(() => room.state.auctionRequestId > 0)
+    seller.reconnection.enabled = false
+    void seller.leave(false)
+    await waitFor(() => room.state.players.get(seller.sessionId)?.isBotControlled === true)
+    room.processBotStep()
+    expect(room.state.auctionRequestId).toBe(0)
+    expect(room.state.auctionId).toBeGreaterThan(0)
+    expect(room.state.auctionHighestBidderSessionId).toBe(buyer.sessionId)
+    expect(room.state.players.get(buyer.sessionId)!.cash).toBe(initialCash - 600_000)
+  })
+
   it('devolve a reserva quando o pedido expira e não inicia a disputa', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })

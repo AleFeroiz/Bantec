@@ -1204,3 +1204,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Em 1280 × 720, cartões cobriam o canto superior. Com o enquadramento ajustado, o canto ficou livre em partida com dois participantes e propriedades compradas; em 390 × 844 a composição permaneceu visível. Console sem avisos ou erros. Ainda falta revisar mais participantes e outras proporções.
 - Teste de projeção para 1280 × 720 falhou antes e passou depois; seis testes de câmera passaram. `npm run verify`: 431 testes e builds web/servidor passaram.
+
+# Mesa cheia e reconexão em leilão — 2026-11-07
+
+- Partida com uma pessoa e cinco bots: em 1280 × 720 e 390 × 844, os seis cartões e o tabuleiro ficaram visíveis sem sobreposição; console sem avisos ou erros. A revisão ocorreu no início, não em todas as decisões.
+- Teste de integração de queda do vendedor com pedido de leilão pendente passou: o bot responde e o valor reservado permanece no lance inicial.
