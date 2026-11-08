@@ -1602,6 +1602,26 @@ describe('sala privada', () => {
     expect(room.state.winnerSessionId).toBe(guest.sessionId)
     expect(room.state.matchEndReason).toBe('bankruptcy')
     expect(room.state.landingDescription).toContain('faliu')
+    expect(room.state.landingDescription).toBe('Ana faliu. Bia venceu a partida.')
+  })
+
+  it('identifica a equipe vencedora por número após falência', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    room.state.teamFormat = 'duos'
+    room.state.players.get(host.sessionId)!.teamId = 0
+    room.state.players.get(guest.sessionId)!.teamId = 1
+    room.state.activePlayerSessionId = host.sessionId
+    room.state.turnPhase = 'debt'
+    room.state.debtAmount = 1_000_000
+    room.state.players.get(host.sessionId)!.cash = 0
+    host.send('declareBankruptcy')
+    await waitFor(() => room.state.status === 'ended')
+    expect(room.state.landingDescription).toBe('Ana faliu. A equipe 2 venceu a partida.')
   })
 
   it('valida construções no servidor e bloqueia terceira casa e hotel até a primeira volta', async () => {

@@ -27,6 +27,7 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - Na revelação de cartas com alvo, o aviso de ausência de opções era calculado com os bens do espectador. Corrigido para mostrar o aviso calculado localmente apenas à pessoa que joga; espectadores não recebem uma conclusão baseada nos próprios bens. `npm run verify`: 441 testes e builds passaram; cenário específico ainda não foi repetido visualmente.
 - Conferência das regras contra testes existentes identificou título desatualizado de 15 segundos para alvo de carta; a regra vigente é 20. O teste foi atualizado para verificar explicitamente 20 segundos em vez de depender apenas da constante da implementação. `npm run verify`: 441 testes e builds passaram.
 - No encerramento, a saída de uma pessoa removia seu registro do placar e o descarte automático podia permanecer desativado. Regressão reproduziu ambos; corrigido para preservar participantes no resultado e descartar a sala após a última saída. `npm run verify`: 442 testes e builds passaram.
+- Na falência, a descrição da vitória usava identificador interno como nome da equipe, inclusive no modo individual. Regressão reproduziu o erro; mensagens foram corrigidas para nome da pessoa ou número da equipe, com testes direcionados em ambos os formatos. `npm run verify`: 443 testes e builds passaram.
 
 ## Próximo passo
 

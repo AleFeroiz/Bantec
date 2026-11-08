@@ -10,6 +10,7 @@
 - Corrigido aviso de alvo inexistente exibido a espectadores com base nos próprios bens; teste direcionado e `npm run verify` passaram com 441 testes e builds. O cenário específico ainda não foi repetido visualmente.
 - Conferido o prazo de alvo de carta: teste existente tinha título antigo de 15 segundos e agora verifica explicitamente os 20 segundos previstos. Suíte e builds passaram.
 - Corrigido encerramento: saída preserva o participante no placar e a sala volta ao descarte automático. Regressão reproduziu as duas falhas; 442 testes e builds passaram.
+- Corrigida descrição da vitória por falência, que exibia identificador interno como equipe; testes cobrem individual e equipe. `npm run verify`: 443 testes e builds passaram.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

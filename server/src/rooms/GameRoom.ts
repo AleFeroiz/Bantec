@@ -908,7 +908,9 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       if (survivorTeams.size <= 1) {
         const winnerId = survivors.find(([id]) => survivorTeams.has(this.getTeamKey(id)))?.[0]
         this.finishMatch(survivorTeams.size ? 'bankruptcy' : 'no-solvent-players', winnerId)
-        this.state.landingDescription = survivorTeams.size ? `${name} faliu. A equipe ${this.getTeamKey(winnerId ?? '')} venceu a partida.` : `${name} faliu. A partida terminou sem vencedor.`
+        const winner = winnerId ? this.state.players.get(winnerId) : undefined
+        const winnerLabel = this.state.teamFormat === 'individual' ? winner?.name ?? 'A pessoa vencedora' : `A equipe ${(winner?.teamId ?? 0) + 1}`
+        this.state.landingDescription = survivorTeams.size ? `${name} faliu. ${winnerLabel} venceu a partida.` : `${name} faliu. A partida terminou sem vencedor.`
         return
       }
       this.state.landingDescription = `${name} declarou falência. Seus bens foram transferidos ao credor ou ao banco.`
