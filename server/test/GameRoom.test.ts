@@ -2798,6 +2798,43 @@ describe('sala privada', () => {
     expect(room.state.debtAmount).toBe(0)
   })
 
+  it('usa um destino válido aleatório e resolve a chegada quando expira a Volta ao Brasil', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    host.onMessage('game:started', () => {})
+    guest.onMessage('game:started', () => {})
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const destination = boardSpaces.find((space) => space.kind === 'property')!
+    const player = room.state.players.get(host.sessionId)!
+    player.position = 30
+    room.state.activePlayerSessionId = host.sessionId
+    room.state.turnPhase = 'world-tour'
+    room.state.turnSeconds = 1
+    const game = room as unknown as {
+      getWorldTourDefaultDestination: (sessionId: string, random?: boolean) => number
+      schedulePresentation: (delay: number, action: () => void) => void
+      updateTurnClock: () => void
+      turnTimerKey: string
+    }
+    let randomDestination = false
+    game.getWorldTourDefaultDestination = (_sessionId, random = false) => {
+      randomDestination = random
+      return destination.id
+    }
+    game.schedulePresentation = (_delay, action) => action()
+    game.turnTimerKey = `${room.state.turnNumber}:${host.sessionId}:world-tour`
+    game.updateTurnClock()
+
+    expect(randomDestination).toBe(true)
+    expect(player.position).toBe(destination.id)
+    expect(room.state.turnPhase).toBe('purchase')
+    expect(room.state.pendingPropertyId).toBe(destination.id)
+  })
+
   it('concede 20 segundos completos para selecionar o alvo depois de fechar a carta', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
