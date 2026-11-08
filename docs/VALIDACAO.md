@@ -1274,3 +1274,9 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Playtest local com seis participantes/bots: lobby revisado em 320 × 844, 390 × 844, 768 × 900, 1024 × 768 e 1280 × 720; HUD da partida conferido em 320 × 844 e 1280 × 720. Não houve rolagem horizontal (largura do documento igual à viewport); seis assentos couberam em 320 px. Console do navegador sem erros/avisos. Viewport restaurada e sessões locais de Vite/Colyseus encerradas.
 - Registro local apontava à sala `KAUS3`, já descartada. Retomada falha com mensagem na home; após atualizar a página a mensagem reaparece. O estado do servidor estava disponível; logs confirmaram sala descartada. Preferência solicitada: apagar lembrança só se sala inexistente, preservando-a em falhas de rede, ou mantê-la sempre.
+
+### 2026-11-08 — Latência, interrupção e câmera no navegador
+
+- Playtest em 1280 × 720 via proxy TCP local: jogada e compra de Manaus concluíram com 180 ms de atraso por trecho. Em seguida, o proxy reteve o tráfego por seis segundos sem fechar a conexão; restaurado o encaminhamento, a interface recebeu o estado autoritativo atualizado (turno e saldos), enquanto o servidor avançava a partida.
+- Com o tabuleiro livre de modal, arraste alterou a órbita e a roda alterou o zoom. Isso cobre entrada de mouse desktop, não a pinça em tela sensível ao toque. A queda abrupta de WebSocket já foi validada em teste separado; indisponibilidade longa do serviço ainda não foi exercitada.
+- Vite, Colyseus e proxy foram encerrados; as portas 5173, 2567, 2568 e 2570 ficaram livres.
