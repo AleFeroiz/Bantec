@@ -8,6 +8,8 @@ Após criar ou entrar na sala, mostrar até seis fichas 3D em plataformas, com n
 
 ## Confirmadas e vigentes
 
+- **Disponibilidade do servidor (2026-11-07):** o usuário escolheu mostrar o estado real do servidor no indicador da entrada, em vez de exibir sempre verde. A página verifica um endpoint leve ao abrir e periodicamente enquanto visível; a verificação pode despertar ou manter ativo o serviço gratuito enquanto a página estiver aberta. Falhas indicam servidor inacessível ao navegador, não provam a causa; uma sala conectada usa seu estado de conexão.
+
 - **Recuperação de cadeira (2026-11-07):** o usuário confirmou manter a retomada simples pelo código da sala e nome exato da pessoa desconectada, ciente de que quem conhece ambos pode assumir essa cadeira.
 
 - **Enquadramento desktop (2026-11-07):** reduzir o tabuleiro na vista inicial para afastá-lo dos cartões de participantes, mantendo os cartões onde estão; preservar o enquadramento móvel e os controles de câmera.

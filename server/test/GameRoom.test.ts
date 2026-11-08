@@ -60,6 +60,14 @@ describe('sala privada', () => {
 
   afterEach(() => vi.restoreAllMocks())
 
+  it('informa disponibilidade do servidor ao navegador de outra origem', async () => {
+    const transport = colyseus.server.transport as unknown as { server: { address: () => { port: number } } }
+    const response = await fetch(`http://127.0.0.1:${transport.server.address().port}/health`, { headers: { Origin: 'https://example.test' } })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('access-control-allow-origin')).toBe('*')
+    await expect(response.json()).resolves.toEqual({ status: 'ok' })
+  })
+
   it('rejeita nome normalizado já conectado sem impedir nomes distintos', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     await colyseus.connectTo(room, { name: 'Ana Maria' })

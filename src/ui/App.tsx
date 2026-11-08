@@ -7,7 +7,8 @@ import { CHARACTER_OPTIONS, DUPLICATE_PLAYER_NAME_ERROR, MAX_ROOM_PLAYERS, type 
 import { getMatchEndSummary, type MatchEndReason } from '../../shared/game'
 import { EVENT_CARDS } from '../../shared/cards'
 import { scheduleSceneLoad } from './sceneLoading'
-import { roomClient } from './roomClient'
+import { roomClient, roomServerUrl } from './roomClient'
+import { checkServerHealth } from './serverHealth'
 import { clearLastRoom, configureRoomReconnection, readLastRoom, recoverRoomAfterRetries, saveLastRoom } from './roomRecovery'
 import { finalScoreMetrics, rankFinalScore, rankFinalTeamScore, scoreCriteria } from './scoreCriteria'
 import { getLobbyPlayerEntries } from './lobbySnapshot'
@@ -217,6 +218,7 @@ function App() {
   const [auctionBidAmount, setAuctionBidAmount] = useState('10000')
   const [auctionStartingBids, setAuctionStartingBids] = useState<Record<number, string>>({})
   const [room, setRoom] = useState<Room | null>(null)
+  const [serverHealth, setServerHealth] = useState<'checking' | 'online' | 'unreachable'>('checking')
   const [firstSwapTargetId, setFirstSwapTargetId] = useState('')
   const [roomPlayers, setRoomPlayers] = useState<SyncedPlayer[]>([])
   const localSessionId = roomPlayers.find((player) => player.controllerSessionId === room?.sessionId)?.sessionId ?? room?.sessionId ?? ''
@@ -226,6 +228,38 @@ function App() {
   const activeRoom = useRef<Room | null>(null)
   const recoveringRoom = useRef<Room | null>(null)
   const autoReconnectAttempted = useRef(false)
+  useEffect(() => {
+    if (screen !== 'home') return
+    let stopped = false
+    let generation = 0
+    let controller: AbortController | undefined
+    let nextCheck: number | undefined
+    const check = async () => {
+      const current = ++generation
+      controller?.abort()
+      if (nextCheck !== undefined) window.clearTimeout(nextCheck)
+      if (document.visibilityState === 'hidden') return
+      setServerHealth('checking')
+      const request = new AbortController()
+      controller = request
+      const timeout = window.setTimeout(() => request.abort(), 15_000)
+      const online = await checkServerHealth(roomServerUrl, request.signal)
+      window.clearTimeout(timeout)
+      if (stopped || current !== generation) return
+      setServerHealth(online ? 'online' : 'unreachable')
+      nextCheck = window.setTimeout(check, online ? 60_000 : 15_000)
+    }
+    const onVisibilityChange = () => { void check() }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    void check()
+    return () => {
+      stopped = true
+      generation++
+      controller?.abort()
+      if (nextCheck !== undefined) window.clearTimeout(nextCheck)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [screen])
   const fpsSamples = useRef(createFrameRateAccumulator())
   const previousFeedbackSnapshot = useRef<{ description: string; diceSequence: number; turnPhase: TurnPhase; players: Map<string, { cash: number; position: number }>; properties: Map<string, PropertyHolding> } | null>(null)
   const pendingLandingSound = useRef<GameSound | null>(null)
@@ -1149,7 +1183,7 @@ function App() {
         <button className="brand" onClick={() => { if (room) void leaveRoom(); else setScreen('home') }} aria-label="Voltar ao início">
           <span className="brand-mark">B</span><span>BANTEC<span className="brand-light">NO BRASIL</span></span>
         </button>
-        <div className="topbar-right"><span className={`connection-dot ${isReconnecting ? 'connection-dot-retrying' : ''}`} /> <span className={isReconnecting ? 'connection-retrying' : ''} role={isReconnecting ? 'status' : undefined} aria-live={isReconnecting ? 'polite' : undefined}>{isReconnecting ? 'RECONECTANDO…' : 'MESA ONLINE'}</span><button type="button" className="icon-button night-mode-toggle" aria-label={nightMode ? 'Ativar modo claro' : 'Ativar modo noturno'} aria-pressed={nightMode} onClick={() => setNightMode((enabled) => !enabled)}>{nightMode ? '☀' : '☾'}</button><button className="icon-button" aria-label="Ajuda" aria-expanded={showHelp} aria-controls="game-help-dialog" onClick={() => setShowHelp((open) => !open)}>?</button></div>
+        <div className="topbar-right"><span className={`connection-dot ${isReconnecting || !room && serverHealth === 'checking' ? 'connection-dot-retrying' : !room && serverHealth === 'unreachable' ? 'connection-dot-offline' : ''}`} /> <span role="status" aria-live="polite">{isReconnecting ? 'RECONECTANDO…' : room ? 'SALA CONECTADA' : serverHealth === 'checking' ? 'VERIFICANDO SERVIDOR…' : serverHealth === 'online' ? 'SERVIDOR DISPONÍVEL' : 'SERVIDOR INACESSÍVEL'}</span><button type="button" className="icon-button night-mode-toggle" aria-label={nightMode ? 'Ativar modo claro' : 'Ativar modo noturno'} aria-pressed={nightMode} onClick={() => setNightMode((enabled) => !enabled)}>{nightMode ? '☀' : '☾'}</button><button className="icon-button" aria-label="Ajuda" aria-expanded={showHelp} aria-controls="game-help-dialog" onClick={() => setShowHelp((open) => !open)}>?</button></div>
       </header>}
 
       {screen === 'home' && (

@@ -1209,3 +1209,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Partida com uma pessoa e cinco bots: em 1280 × 720 e 390 × 844, os seis cartões e o tabuleiro ficaram visíveis sem sobreposição; console sem avisos ou erros. A revisão ocorreu no início, não em todas as decisões.
 - Teste de integração de queda do vendedor com pedido de leilão pendente passou: o bot responde e o valor reservado permanece no lance inicial.
+
+# Indicador de disponibilidade — 2026-11-07
+
+- Servidor parado: entrada indicou inacessível. Após iniciar o servidor, mudou automaticamente para disponível; sala criada indicou conectada e interrupção do servidor mostrou reconectando. Em 320 × 568 o cabeçalho coube na largura disponível.
+- Endpoint HTTP com CORS e resposta identificada tem teste de integração; cliente cobre falhas e respostas inválidas. `npm run verify`: 435 testes e builds passaram. O indicador de saúde HTTP não garante disponibilidade de WebSocket ou criação de sala.
