@@ -5,6 +5,7 @@
 - A sobreposição em 1280 × 720 foi corrigida com redução do tabuleiro; uma partida com seis participantes foi revista nessa resolução e em 390 × 844, com canto livre e console sem avisos ou erros. Revisar outras proporções e decisões durante a partida.
 - O usuário escolheu indicador real de disponibilidade: endpoint HTTP leve, checagem periódica enquanto a entrada estiver visível e estado de reconexão da sala. Servidor parado/ligado e queda de sala foram exercitados. Corrigida porta fixa dos testes; 436 testes e builds passaram. Próximo passo: revisar demais fluxos de rede e partida.
 - Playtest DEV confirmou compra de terreno com duas casas e desconto de saldo. Aviso de duplas atribuía a jogada ao jogador local mesmo na vez do bot; texto corrigido. Teste cobre as duas perspectivas; mensagem local revista em partida. `npm run verify`: 437 testes e builds passaram.
+- Revelações da Volta e Copa exibiam instruções de escolha também a espectadores; cópia ajustada para identificar quem escolhe. Dois clientes validaram as perspectivas na Volta; Copa coberta por teste de texto. `npm run verify`: 438 testes e builds passaram.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

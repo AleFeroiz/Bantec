@@ -1,17 +1,17 @@
 # Graph Report - BancoImobiliarioOnline  (2026-11-07)
 
 ## Corpus Check
-- 197 files · ~168,510 words
+- 197 files · ~168,870 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 19 file(s) not represented in the graph (top: .glb 8, .blend 6, (none) 2)
 
 ## Summary
-- 1490 nodes · 2776 edges · 98 communities (88 shown, 10 thin omitted)
+- 1492 nodes · 2781 edges · 100 communities (92 shown, 8 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `327ba9aa`
+- Built from commit: `e3908a6c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,14 +21,14 @@
 - gameFeedback.ts
 - Validação visual e de navegador
 - Apostas — plano detalhado de implementação
-- snapshotStability.ts
+- Relatório — leilão compartilhado
 - compilerOptions
 - Andamento do projeto
 - compilerOptions
 - steps
-- roomRecovery.ts
+- GameRoom.ts
 - compilerOptions
-- spaceLabel.ts
+- modelPlacement.ts
 - scripts
 - Instruções do projeto
 - Como contribuir
@@ -39,11 +39,11 @@
 - tsconfig.json
 - fpsMeter.ts
 - sceneRenderWake.ts
-- gameAudio.ts
+- GameRoom.test.ts
 - react
 - Referências visuais da partida
 - vitest
-- GameRoom.ts
+- game.ts
 - HUD, cartas, dados e roleta
 - BoardSceneCanvas
 - App
@@ -55,10 +55,10 @@
 - dependencies
 - App.tsx
 - CashHud.tsx
-- GameRoom.test.ts
+- .processBotStep
 - dicePresentation.ts
 - Leilão compartilhado — plano de implementação
-- rouletteFloor.test.ts
+- vite
 - Câmera por arraste e escolhas visuais
 - Cena sem luzes e sombras
 - Reforma BANTEC — plano de trabalho
@@ -75,14 +75,14 @@
 - Deploy automático do Render
 - betting.ts
 - Playtests humanos de equilíbrio do BANTEC
-- BoardScene
+- propertyRentLabel.ts
 - sequencia-visual-economia-camera.md
 - Correção do painel de encerramento — 2026-10-31
 - ANDAMENTO.md
 - Zoom da câmera e destaque das fichas
 - nightMode.ts
 - playerEmotes.ts
-- propertyRentLabel.ts
+- board.test.ts
 - pawnPlacement.ts
 - Reforma econômica inspirada em Business Tour — implementada (2026-11-01)
 - 2026-10-31 — Smoke test público da sala e da partida BANTEC
@@ -90,7 +90,7 @@
 - selectedAuctionProperty
 - Validação visual e de navegador
 - auctionActions.ts
-- board.test.ts
+- Painel de compra, inspeção, controles e nitidez — 2026-10-30
 - Revisão de ponta a ponta
 - throwableTrajectory.ts
 - 2026-11-03 — Responsividade, leilão e controles DEV
@@ -100,12 +100,12 @@
 - sequencia-jogada-janelas-construcao.md
 - wealthHeadwear.ts
 - Playtest manual das 12 cartas BANTEC — concluído (2026-10-31)
-- GameRoom.ts
+- scoreCriteria.ts
 - app.config.ts
-- sceneLoading.ts
-- cameraTarget.ts
 - playerOwnershipHighlight.ts
-- homeRegionRoute.ts
+- cameraTarget.ts
+- roomClient.ts
+- snapshotStability.ts
 - Revisão visual low-poly das fichas
 - Reformulação do conjunto de fichas
 - Prévia HTTPS do protótipo Unity Web — 2026-11-06
@@ -114,9 +114,11 @@
 - getDiceDestinationSpaceId
 - Empréstimo ao banco — plano de implementação
 - Revisão do salto e do navio
+- shouldOpenAuctionPanel
+- checkServerHealth
 
 ## God Nodes (most connected - your core abstractions)
-1. `App()` - 103 edges
+1. `App()` - 104 edges
 2. `GameRoom` - 81 edges
 3. `2026-10-31 — Dados mais baixos sobre a FATEC` - 77 edges
 4. `vitest` - 70 edges
@@ -128,53 +130,53 @@
 10. `compilerOptions` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Zoom da câmera e destaque das fichas — implementação validada (2026-10-29)` --references--> `AnimatedPawn()`  [INFERRED]
+  docs/ANDAMENTO.md → src/ui/BoardScene.tsx
 - `Fatos verificados` --references--> `AnimatedPawn()`  [INFERRED]
   docs/trabalho/seletor-fichas-personagem.md → src/ui/BoardScene.tsx
+- `2026-10-28 — Dinheiro 3D e leitura de casas (em andamento)` --references--> `AnimatedPawn()`  [INFERRED]
+  docs/VALIDACAO.md → src/ui/BoardScene.tsx
 - `HUD de turno, atalhos e leitura do aluguel — 2026-10-30` --references--> `getBuildingRentLabelPosition()`  [INFERRED]
   docs/VALIDACAO.md → src/ui/modelPlacement.ts
 - `Atualização de juros e casa marcada — 2026-11-07` --references--> `loanRepayment()`  [INFERRED]
   docs/trabalho/emprestimo-banco.md → shared/game.ts
-- `Zoom da câmera e destaque das fichas — implementação validada (2026-10-29)` --references--> `AnimatedPawn()`  [INFERRED]
-  docs/ANDAMENTO.md → src/ui/BoardScene.tsx
-- `2026-10-28 — Dinheiro 3D e leitura de casas (em andamento)` --references--> `AnimatedPawn()`  [INFERRED]
-  docs/VALIDACAO.md → src/ui/BoardScene.tsx
 
 ## Import Cycles
 - None detected.
 
-## Communities (98 total, 10 thin omitted)
+## Communities (100 total, 8 thin omitted)
 
 ### Community 0 - "Posicionamento de propriedades e bandeiras — 2026-11-02"
 Cohesion: 0.33
 Nodes (5): Correções aplicadas, Fatos verificados, Posicionamento de propriedades e bandeiras — 2026-11-02, Próximo passo, Validação
 
 ### Community 1 - "package.json"
-Cohesion: 0.09
-Nodes (30): allowScripts, esbuild@0.28.2, devDependencies, @colyseus/testing@^0.18.6, @colyseus/tools@^0.18.11, husky@^9.1.7, tsx@^4.23.15, @types/node@^24.19.2 (+22 more)
+Cohesion: 0.10
+Nodes (26): allowScripts, esbuild@0.28.2, devDependencies, @colyseus/testing@^0.18.6, @colyseus/tools@^0.18.11, husky@^9.1.7, tsx@^4.23.15, @types/node@^24.19.2 (+18 more)
 
 ### Community 2 - "gameFeedback.ts"
-Cohesion: 0.16
-Nodes (17): CashChange, CashChangeToast(), CashChangeToastProps, appendGameFeedback(), GameFeedbackItem, personalizePlayerFeedback(), formatCashDelta(), GameSound (+9 more)
+Cohesion: 0.09
+Nodes (36): showGameFeedback(), CashChange, CashChangeToast(), CashChangeToastProps, appendGameFeedback(), GameFeedbackItem, personalizePlayerFeedback(), GameAudioEffectStyle (+28 more)
 
 ### Community 3 - "Validação visual e de navegador"
 Cohesion: 0.03
-Nodes (74): 2026-10-27 — Chrome: cartas Sorte ou Revés e prisão, 2026-10-27 — Chrome: dívida, sala e layout responsivo, 2026-10-27 — Chrome: estado de construções, 2026-10-27 — Chrome: hipoteca, resgate e carteira, 2026-10-27 — Chrome: sala, entrada de jogador e primeira compra, 2026-10-27 — Encerramento Express e placar final, 2026-10-27 — Lobby de sala, 2026-10-27 — Negociação entre participantes (+66 more)
+Nodes (75): 2026-10-27 — Chrome: cartas Sorte ou Revés e prisão, 2026-10-27 — Chrome: dívida, sala e layout responsivo, 2026-10-27 — Chrome: estado de construções, 2026-10-27 — Chrome: hipoteca, resgate e carteira, 2026-10-27 — Chrome: sala, entrada de jogador e primeira compra, 2026-10-27 — Encerramento Express e placar final, 2026-10-27 — Lobby de sala, 2026-10-27 — Negociação entre participantes (+67 more)
 
 ### Community 4 - "Apostas — plano detalhado de implementação"
 Cohesion: 0.09
 Nodes (22): 10. Encerramento e evidência exigida, 11. Implementação e validação, 1. Regras confirmadas, 2. Parâmetros técnicos do plano, 3.1 Termos e fórmula, 3.2 Catálogo inicial proposto pelo plano, 3.3 Sorteio do resultado, 3. Economia e geração das opções (+14 more)
 
-### Community 5 - "snapshotStability.ts"
-Cohesion: 0.80
-Nodes (3): areNumberPairsEqual(), areRecordArraysEqual(), areRecordMapsEqual()
+### Community 5 - "Relatório — leilão compartilhado"
+Cohesion: 0.29
+Nodes (5): Arquivos principais, Entrega, Limitações conhecidas, Relatório — leilão compartilhado, Validação
 
 ### Community 6 - "compilerOptions"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, jsx, lib, module, moduleDetection, moduleResolution, noEmit (+11 more)
 
 ### Community 7 - "Andamento do projeto"
-Cohesion: 0.06
-Nodes (36): Aluguéis 3D, opções em tela inteira, emotes e sons de chegada — implementação concluída (2026-10-30), Andamento do projeto, Correção do desempenho baixo — implementação validada localmente (2026-10-29), Correções de casas e interações — concluído (2026-10-29), Correções de compra, prisão e origens 3D — concluído (2026-10-30), Estado observado — 2026-10-28, Frente atual — fichas de veículo no lobby (2026-10-29), Frente atual — sons de dinheiro, ajuda e prazo de turno (2026-10-28) (+28 more)
+Cohesion: 0.04
+Nodes (47): Aluguéis 3D, opções em tela inteira, emotes e sons de chegada — implementação concluída (2026-10-30), Andamento do projeto, Correção do desempenho baixo — implementação validada localmente (2026-10-29), Correções de casas e interações — concluído (2026-10-29), Correções de compra, prisão e origens 3D — concluído (2026-10-30), Estado observado — 2026-10-28, Frente atual — fichas de veículo no lobby (2026-10-29), Frente atual — sons de dinheiro, ajuda e prazo de turno (2026-10-28) (+39 more)
 
 ### Community 8 - "compilerOptions"
 Cohesion: 0.12
@@ -184,17 +186,17 @@ Nodes (16): compilerOptions, allowImportingTsExtensions, lib, module, moduleDete
 Cohesion: 0.09
 Nodes (21): RENDER_DEPLOY_HOOK_URL, jobs, verify, name, on, pull_request, push, workflow_dispatch (+13 more)
 
-### Community 10 - "roomRecovery.ts"
-Cohesion: 0.22
-Nodes (12): normalizePlayerName(), copyRoomInvite(), buildRoomInviteUrl(), getRoomInviteCode(), normalizeRoomCode(), clearLastRoom(), configureRoomReconnection(), LastRoom (+4 more)
+### Community 10 - "GameRoom.ts"
+Cohesion: 0.10
+Nodes (26): createRoomCode(), AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_REQUEST_SECONDS, CLASSIC_MATCH_SECONDS, isMatchDuration(), MatchEndReason, PAWN_TELEPORT_ANIMATION_DURATION_MS (+18 more)
 
 ### Community 11 - "compilerOptions"
 Cohesion: 0.14
 Nodes (13): compilerOptions, esModuleInterop, lib, module, moduleResolution, noFallthroughCasesInSwitch, outDir, rootDir (+5 more)
 
-### Community 12 - "spaceLabel.ts"
-Cohesion: 0.21
-Nodes (11): Aluguel ampliado, opções em tela cheia, emotes, hotel e sons de cantos — 2026-10-30, Compra depois de carta de avanço e piso sem texto — 2026-10-30, HUD de turno, atalhos e leitura do aluguel — 2026-10-30, Painel de compra, inspeção, controles e nitidez — 2026-10-30, Seleção de propriedades pelo tabuleiro — 2026-10-31, SpaceKind, SpaceLabel(), event() (+3 more)
+### Community 12 - "modelPlacement.ts"
+Cohesion: 0.57
+Nodes (5): Bounds3, getBuildingEdgeOffset(), getBuildingRentLabelPosition(), getModelEdgeFootprint(), getModelFootprintDepth()
 
 ### Community 13 - "scripts"
 Cohesion: 0.18
@@ -225,16 +227,16 @@ Cohesion: 0.40
 Nodes (4): Critérios de aceite, Problema ou necessidade, Regras, telas ou dispositivos afetados, Resultado esperado para quem joga
 
 ### Community 21 - "fpsMeter.ts"
-Cohesion: 0.24
-Nodes (10): createFrameRateAccumulator(), FPS_IDLE_AFTER_MS, FPS_SAMPLE_WINDOW_MS, FrameRateAccumulator, FrameRateDisplay, FrameRateReading, readFrameRate(), recordRenderedFrame() (+2 more)
+Cohesion: 0.26
+Nodes (9): createFrameRateAccumulator(), FPS_IDLE_AFTER_MS, FPS_SAMPLE_WINDOW_MS, FrameRateAccumulator, FrameRateDisplay, FrameRateReading, readFrameRate(), FpsMeter() (+1 more)
 
 ### Community 22 - "sceneRenderWake.ts"
 Cohesion: 0.20
 Nodes (13): SceneRenderWake(), CancelDelay, CancelFrame, ContextEventTarget, InvalidateScene, SceneWakeTarget, ScheduleDelay, ScheduleFrame (+5 more)
 
-### Community 23 - "gameAudio.ts"
-Cohesion: 0.20
-Nodes (19): showGameFeedback(), GameAudioEffectStyle, getAudioContext(), getGameAudioEffectStyle(), MusicTrack, playAirplanePass(), playCashRegister(), playCrowdCheer() (+11 more)
+### Community 23 - "GameRoom.test.ts"
+Cohesion: 0.11
+Nodes (13): @colyseus/schema, LobbyState, PropertyState, EVENT_CARDS, EventCard, EventCardEffect, CARD_REVEAL_SECONDS, CARD_TARGET_SECONDS (+5 more)
 
 ### Community 24 - "react"
 Cohesion: 0.17
@@ -246,27 +248,27 @@ Nodes (13): Aplicação e limites, Apresentação por momento, Capturas de refer
 
 ### Community 26 - "vitest"
 Cohesion: 0.10
-Nodes (10): vitest, shouldOpenAuctionPanel(), stylesheet, stepDieValue(), getLobbyPlayerEntries(), canAffordPurchase(), appSource, stylesheet (+2 more)
+Nodes (11): vitest, stylesheet, stepDieValue(), getLobbyPlayerEntries(), toggleSelection(), SceneScheduler, scheduleSceneLoad(), appSource (+3 more)
 
-### Community 27 - "GameRoom.ts"
-Cohesion: 0.12
-Nodes (29): ANIMATION_SPEEDS, applyRentMultiplier(), areDiceDoubles(), canBuildLevelAfterFirstLap(), chooseFestivalCityIds(), COMPANY_RENT_PER_OWNED, DEFAULT_ANIMATION_SPEED, DICE_ANIMATION_DURATION_MS (+21 more)
+### Community 27 - "game.ts"
+Cohesion: 0.11
+Nodes (27): getLineTitleIds(), ANIMATION_SPEEDS, AnimationSpeed, applyRentMultiplier(), areDiceDoubles(), BUILDING_ANIMATION_DURATION_MS, chooseFestivalCityIds(), COMPANY_RENT_PER_OWNED (+19 more)
 
 ### Community 28 - "HUD, cartas, dados e roleta"
-Cohesion: 0.40
-Nodes (4): 2026-10-31 — Ajuste adicional de altura dos dados, Decisões confirmadas pelo pedido, HUD, cartas, dados e roleta, Implementação e validação
+Cohesion: 0.33
+Nodes (5): 2026-10-31 — Ajuste adicional de altura dos dados, Decisões confirmadas pelo pedido, Fatos verificados, HUD, cartas, dados e roleta, Implementação e validação
 
 ### Community 29 - "BoardSceneCanvas"
-Cohesion: 0.16
-Nodes (12): BoardSceneCanvas(), CameraZoomBounds(), FrameRateProbe(), ResponsiveCamera(), CameraFraming, getCameraFraming(), CameraZoomLimits, getCameraZoomLimits() (+4 more)
+Cohesion: 0.17
+Nodes (11): BoardSceneCanvas(), CameraZoomBounds(), ResponsiveCamera(), CameraFraming, getCameraFraming(), CameraZoomLimits, getCameraZoomLimits(), DEFAULT_GRAPHICS_QUALITY (+3 more)
 
 ### Community 30 - "App"
-Cohesion: 0.11
-Nodes (17): App(), connectToRoom(), createRoom(), joinRoom(), leaveRoom(), BoardScene, CharacterIcon(), durationLabel() (+9 more)
+Cohesion: 0.10
+Nodes (23): normalizePlayerName(), App(), connectToRoom(), copyRoomInvite(), createRoom(), joinRoom(), leaveRoom(), BoardScene (+15 more)
 
 ### Community 31 - "BoardScene.tsx"
-Cohesion: 0.09
-Nodes (23): AnimationSpeed, BUILDING_ANIMATION_DURATION_MS, LANDING_PULSE_DURATION_MS, areScenePropsEqual(), BoardSceneProps, CameraDragAnywhere(), CameraOrbitControls, CityEffectEvent (+15 more)
+Cohesion: 0.10
+Nodes (22): areScenePropsEqual(), BoardSceneProps, CameraDragAnywhere(), CameraOrbitControls, CityEffectEvent, dicePips, EarthquakeEvent, FrameRateProbe() (+14 more)
 
 ### Community 32 - "Seletor de fichas de personagem"
 Cohesion: 0.33
@@ -277,40 +279,40 @@ Cohesion: 0.05
 Nodes (34): Cidades, regiões e cores, Confirmadas e vigentes, Decisões do projeto, Histórico de decisões substituídas, Lobby visual — decisão de 2026-11-04, Outras regras econômicas aprovadas, Propostas abertas e validações necessárias, Arquitetura confirmada (+26 more)
 
 ### Community 34 - "graphify.mjs"
-Cohesion: 0.17
-Nodes (5): [command, ...args], graphifyBinDir, graphifyExecutable, projectRoot, toggleSelection()
+Cohesion: 0.22
+Nodes (4): [command, ...args], graphifyBinDir, graphifyExecutable, projectRoot
 
 ### Community 35 - "VALIDACAO.md"
 Cohesion: 0.03
-Nodes (57): 2026-10-31 — Início das durações e economia em sala local com bots, 2026-10-31 — Lançamento cosmético de objetos, 2026-10-31 — Trajetória do arremesso em movimento, 2026-11-01 — ajustes de cartas, movimento e duração, 2026-11-01 — Bandeira de festival e animação de rolagem, 2026-11-01 — Continuação após resolver carta com alvo, 2026-11-01 — Cronômetro de turno sem limite total, 2026-11-01 — Destaque das cidades por cartão e altura das construções (+49 more)
+Nodes (58): 2026-10-31 — Início das durações e economia em sala local com bots, 2026-10-31 — Lançamento cosmético de objetos, 2026-10-31 — Trajetória do arremesso em movimento, 2026-11-01 — ajustes de cartas, movimento e duração, 2026-11-01 — Bandeira de festival e animação de rolagem, 2026-11-01 — Continuação após resolver carta com alvo, 2026-11-01 — Cronômetro de turno sem limite total, 2026-11-01 — Destaque das cidades por cartão e altura das construções (+50 more)
 
 ### Community 36 - "dependencies"
 Cohesion: 0.18
 Nodes (11): dependencies, @colyseus/schema@^5.0.42, @colyseus/sdk@^0.18.8, react-dom@^19.1.0, @react-three/drei@^10.5.1, @react-three/fiber@^9.3.0, three@^0.179.1, @colyseus/sdk (+3 more)
 
 ### Community 37 - "App.tsx"
-Cohesion: 0.11
-Nodes (22): MatchDuration, getThrowableLabel(), getThrowableSymbol(), isThrowableObject(), THROW_COOLDOWN_MS, THROW_IMPACT_DURATION_MS, THROW_PROJECTILE_DURATION_MS, ThrowableObject (+14 more)
+Cohesion: 0.14
+Nodes (18): getThrowableLabel(), getThrowableSymbol(), isThrowableObject(), THROW_COOLDOWN_MS, THROW_IMPACT_DURATION_MS, THROW_PROJECTILE_DURATION_MS, ThrowableObject, THROWABLES (+10 more)
 
 ### Community 38 - "CashHud.tsx"
-Cohesion: 0.06
-Nodes (48): three, CHARACTER_OPTIONS, CharacterType, DUPLICATE_PLAYER_NAME_ERROR, isCharacterType(), LobbyPlayer, LobbyStatus, MAX_ROOM_PLAYERS (+40 more)
+Cohesion: 0.09
+Nodes (33): three, CharacterType, CashHudOverlay, CashHudCamera(), CashHudOverlay, CashHudOverlayScene(), CashHudScene(), CashHudStack() (+25 more)
 
-### Community 39 - "GameRoom.test.ts"
-Cohesion: 0.15
-Nodes (10): @colyseus/schema, LobbyState, PropertyState, BET_MINIMUM, EVENT_CARDS, EventCard, EventCardEffect, CARD_REVEAL_SECONDS (+2 more)
+### Community 39 - ".processBotStep"
+Cohesion: 0.22
+Nodes (12): chooseBotAuctionBid(), shouldBotAcceptAuctionRequest(), shouldBotBuyback(), shouldBotBuyProperty(), calculateNetWorth(), canBuildHotel(), canBuildLevelAfterFirstLap(), canBuildProperty() (+4 more)
 
 ### Community 40 - "dicePresentation.ts"
 Cohesion: 0.22
 Nodes (13): AnimatedDie(), DICE_PRESENTATION_POSITIONS, DICE_RESULT_BADGE_POSITION, DICE_ROLL_BOUNCE_COUNT, DICE_ROLL_BOUNCE_HEIGHT, DICE_VISUAL_SCALE, DicePosition, DicePresentationPhase (+5 more)
 
 ### Community 41 - "Leilão compartilhado — plano de implementação"
-Cohesion: 0.08
-Nodes (24): 10. Interface desktop e mobile, 11. Arquivos e etapas, 12. Critérios de aceite e testes, 1. Regras já confirmadas, 2. Decisões confirmadas nesta etapa, 3. Implementação existente a aproveitar, 4.1 Imóvel próprio, 4.2 Imóvel alheio (+16 more)
+Cohesion: 0.11
+Nodes (19): 10. Interface desktop e mobile, 11. Arquivos e etapas, 12. Critérios de aceite e testes, 1. Regras já confirmadas, 2. Decisões confirmadas nesta etapa, 3. Implementação existente a aproveitar, 4.1 Imóvel próprio, 4.2 Imóvel alheio (+11 more)
 
-### Community 42 - "rouletteFloor.test.ts"
-Cohesion: 0.24
-Nodes (8): Fatos verificados, ChanceRoulette(), BoardTileTheme, getBoardTileTheme(), getPolygonArea(), getRouletteFloorSectors(), RoulettePoint, squareBoundaryPoint()
+### Community 42 - "vite"
+Cohesion: 0.40
+Nodes (4): vite@^7.1.3, @vitejs/plugin-react@^5.0.2, vite, @vitejs/plugin-react
 
 ### Community 43 - "Câmera por arraste e escolhas visuais"
 Cohesion: 0.29
@@ -324,6 +326,10 @@ Nodes (6): Cena sem luzes e sombras, Decisão confirmada, Fatos, Implementação
 Cohesion: 0.25
 Nodes (7): Decisões e escopo aprovados, Estado atual — 2026-11-01, Linha de implementação, Objetivo, Playtest de compras e aluguel — 2026-10-31, Propostas abertas e pendências, Reforma BANTEC — plano de trabalho
 
+### Community 46 - "GameRoom"
+Cohesion: 0.07
+Nodes (5): GameRoom, LobbyPlayerState, describeLanding(), movePosition(), isWorldCupVenue()
+
 ### Community 47 - "Dogfood Report: BANTEC"
 Cohesion: 0.40
 Nodes (4): Dogfood Report: BANTEC, ISSUE-001: Cartões cobrem o vértice superior do tabuleiro em desktop, Issues, Summary
@@ -333,8 +339,8 @@ Cohesion: 0.40
 Nodes (4): Bairros em sequência e tema da Sorte, Fatos verificados — 2026-10-29, Perguntas abertas, Próximo passo
 
 ### Community 49 - "Board"
-Cohesion: 0.14
-Nodes (27): Zoom da câmera e destaque das fichas — implementação validada (2026-10-29), 2026-10-28 — Dinheiro 3D e leitura de casas (em andamento), positionOnBoard(), AnimatedBuilding(), AnimatedPawn(), Board(), CityEffectMarker(), ConfettiPiece() (+19 more)
+Cohesion: 0.15
+Nodes (25): getAnimationDuration(), positionOnBoard(), getBoardSpaceDecoration(), getPropertyModelYOffset(), AnimatedBuilding(), AnimatedPawn(), Board(), ChanceRoulette() (+17 more)
 
 ### Community 50 - "ANDAMENTO.md"
 Cohesion: 0.14
@@ -366,15 +372,15 @@ Nodes (7): Comparação de hospedagem — 2026-10-31, Contorno preparado, Deploy
 
 ### Community 57 - "betting.ts"
 Cohesion: 0.11
-Nodes (29): BET_CHANCE_SCALE, BET_PROFILES, BET_STARTING_CASH_RATIO, BET_STEP, BetBand, betLimit(), BetOffer, betPayout() (+21 more)
+Nodes (30): BET_CHANCE_SCALE, BET_MINIMUM, BET_PROFILES, BET_STARTING_CASH_RATIO, BET_STEP, BetBand, betLimit(), BetOffer (+22 more)
 
 ### Community 58 - "Playtests humanos de equilíbrio do BANTEC"
 Cohesion: 0.33
 Nodes (5): Como executar, Estado, Objetivo, Playtests humanos de equilíbrio do BANTEC, Registro por sessão
 
-### Community 59 - "BoardScene"
-Cohesion: 0.18
-Nodes (10): Frente concluída — sequência de animações, diálogos e compra de construções (2026-10-28), Rotina do PC de casa — 2026-10-28, Dinheiro 3D e representação de saldo, Fatos, Implementação, Validação e publicação, 2026-10-28 — Sons de dinheiro, ajuda e prazo de turno, 2026-10-29 — Órbita e escolhas visuais da partida (+2 more)
+### Community 59 - "propertyRentLabel.ts"
+Cohesion: 0.35
+Nodes (11): bankReturnValue(), buildingSaleValue(), calculateCompanyRent(), calculateRent(), PROPERTY_HOTEL_LEVEL, formatMoney(), canShowLiquidationValues(), getPropertyBoardLabel() (+3 more)
 
 ### Community 61 - "Correção do painel de encerramento — 2026-10-31"
 Cohesion: 0.18
@@ -396,13 +402,13 @@ Nodes (7): GAME_BACKGROUND_LIGHT, GAME_BACKGROUND_NIGHT, getGameBackgroundColor(
 Cohesion: 0.53
 Nodes (4): getPlayerEmoteSymbol(), isPlayerEmote(), PLAYER_EMOTES, PlayerEmote
 
-### Community 66 - "propertyRentLabel.ts"
-Cohesion: 0.33
-Nodes (11): boardSpaces, bankReturnValue(), calculateCompanyRent(), calculateRent(), PROPERTY_HOTEL_LEVEL, formatMoney(), canShowLiquidationValues(), getPropertyBoardLabel() (+3 more)
+### Community 66 - "board.test.ts"
+Cohesion: 0.28
+Nodes (8): canReturnPropertyToBank(), canSellBuilding(), hasLiquidatableAssets(), JAIL_TURNS, liquidatablePropertyIds(), START_BONUS, STARTING_CASH, taxForSpace()
 
 ### Community 67 - "pawnPlacement.ts"
-Cohesion: 0.18
-Nodes (14): BOARD_SURFACE_Y, BoardSpaceDecoration, BUILDING_GROUP_Y, BUILDING_MODEL_Y_OFFSET, getBoardSpaceDecoration(), getPropertyModelYOffset(), FESTIVAL_BANNER_HEIGHT, FESTIVAL_BANNER_PENNANT_COUNT (+6 more)
+Cohesion: 0.19
+Nodes (12): BOARD_SURFACE_Y, BoardSpaceDecoration, BUILDING_GROUP_Y, BUILDING_MODEL_Y_OFFSET, FESTIVAL_BANNER_HEIGHT, FESTIVAL_BANNER_PENNANT_COUNT, FESTIVAL_BANNER_STAKE_SPACING, getFestivalBannerPlacement() (+4 more)
 
 ### Community 68 - "Reforma econômica inspirada em Business Tour — implementada (2026-11-01)"
 Cohesion: 0.67
@@ -413,8 +419,8 @@ Cohesion: 0.20
 Nodes (10): 2026-10-30 — Cartões do jogador, lance de leilão e airport GLB, 2026-10-30 — Pop-up de saldo, modo DEV no lobby e aluguel das estações, 2026-10-31 — Dados ainda mais baixos sobre a FATEC, 2026-10-31 — Dados mais baixos sem atravessar a FATEC, 2026-10-31 — Encerramento após dívida sem bens liquidáveis, 2026-10-31 — Ferramentas DEV de teleporte e saldo, 2026-10-31 — Recompra depois do aluguel, 2026-10-31 — Recompra forçada pela interface (+2 more)
 
 ### Community 70 - "shared/board.ts"
-Cohesion: 0.12
-Nodes (18): BoardSpace, businessTourCityCurve, cities, City, cityEconomiesByName, CityEconomy, cityIds, companyIds (+10 more)
+Cohesion: 0.08
+Nodes (29): BoardSpace, boardSpaces, businessTourCityCurve, cities, City, cityEconomiesByName, CityEconomy, cityIds (+21 more)
 
 ### Community 71 - "selectedAuctionProperty"
 Cohesion: 0.28
@@ -425,12 +431,12 @@ Cohesion: 0.29
 Nodes (7): 2026-10-31 — Cartas Ladrão, Volta ao Brasil e Apagão, 2026-10-31 — Dados mais baixos sem entrar na FATEC, 2026-11-01 — Ajuste final da cartola, 2026-11-01 — Fichas, cores, propriedades e reconexão, 2026-11-01 — Home BANTEC publicada e seletor de duração, 2026-11-01 — Recuperação do tabuleiro após piscada, Validação visual e de navegador
 
 ### Community 73 - "auctionActions.ts"
-Cohesion: 0.57
-Nodes (5): stepAuctionBid(), adjustAuctionStartingBid(), getAuctionStartBlockReason(), normalizeAuctionBidInput(), normalizeAuctionStartingBid()
+Cohesion: 0.46
+Nodes (6): AUCTION_MIN_BID_INCREMENT, stepAuctionBid(), adjustAuctionStartingBid(), getAuctionStartBlockReason(), normalizeAuctionBidInput(), normalizeAuctionStartingBid()
 
-### Community 74 - "board.test.ts"
-Cohesion: 0.16
-Nodes (17): buildingSaleValue(), calculateNetWorth(), canBuildHotel(), canBuildProperty(), canReturnPropertyToBank(), canSellBuilding(), constructionCost(), describeLanding() (+9 more)
+### Community 74 - "Painel de compra, inspeção, controles e nitidez — 2026-10-30"
+Cohesion: 0.33
+Nodes (6): Aluguel ampliado, opções em tela cheia, emotes, hotel e sons de cantos — 2026-10-30, Compra depois de carta de avanço e piso sem texto — 2026-10-30, HUD de turno, atalhos e leitura do aluguel — 2026-10-30, Painel de compra, inspeção, controles e nitidez — 2026-10-30, Seleção de propriedades pelo tabuleiro — 2026-10-31, event()
 
 ### Community 75 - "Revisão de ponta a ponta"
 Cohesion: 0.40
@@ -456,21 +462,29 @@ Nodes (14): key, value, services, autoDeployTrigger, branch, buildCommand, envVa
 Cohesion: 0.29
 Nodes (6): PropertyHolding, getWealthHeadwear(), OwnedProperty, RankedPlayer, players, WealthHeadwear
 
-### Community 84 - "GameRoom.ts"
-Cohesion: 0.15
-Nodes (16): chooseBotAuctionBid(), shouldBotAcceptAuctionRequest(), shouldBotBuyback(), shouldBotBuyProperty(), createRoomCode(), AUCTION_BID_SECONDS, AUCTION_GLOBAL_COOLDOWN_SECONDS, AUCTION_MIN_BID_INCREMENT (+8 more)
+### Community 84 - "scoreCriteria.ts"
+Cohesion: 0.39
+Nodes (6): finalScoreMetrics(), FinalScorePlayer, FinalTeamScorePlayer, rankFinalScore(), rankFinalTeamScore(), scoreCriteria()
 
 ### Community 85 - "app.config.ts"
 Cohesion: 0.33
 Nodes (5): @colyseus/core@^0.18.23, @colyseus/ws-transport@^0.18.4, @colyseus/core, @colyseus/ws-transport, server
 
+### Community 86 - "playerOwnershipHighlight.ts"
+Cohesion: 0.60
+Nodes (3): getOwnedPropertySpaceIds(), OwnedProperty, shouldShowPlayerInspection()
+
 ### Community 87 - "cameraTarget.ts"
 Cohesion: 0.50
 Nodes (3): CameraFollowTarget(), CameraPoint, getCameraTargetShift()
 
-### Community 88 - "playerOwnershipHighlight.ts"
-Cohesion: 0.60
-Nodes (3): getOwnedPropertySpaceIds(), OwnedProperty, shouldShowPlayerInspection()
+### Community 88 - "roomClient.ts"
+Cohesion: 0.50
+Nodes (3): resolveRoomServerUrl(), roomClient, roomServerUrl
+
+### Community 89 - "snapshotStability.ts"
+Cohesion: 0.80
+Nodes (3): areNumberPairsEqual(), areRecordArraysEqual(), areRecordMapsEqual()
 
 ### Community 90 - "Revisão visual low-poly das fichas"
 Cohesion: 0.33
@@ -483,6 +497,10 @@ Nodes (3): Estado em 2026-11-06, Reformulação do conjunto de fichas, Validaç�
 ### Community 92 - "Prévia HTTPS do protótipo Unity Web — 2026-11-06"
 Cohesion: 0.22
 Nodes (8): Consulta da conta — 2026-11-06, Estado atual, Etapas para retomar a publicação, Fatos verificados no repositório, Ferramentas locais de publicação — 2026-11-06, Limites oficiais consultados em 2026-11-06, Proposta, ainda não aprovada, Prévia HTTPS do protótipo Unity Web — 2026-11-06
+
+### Community 93 - "revealCopy.ts"
+Cohesion: 0.60
+Nodes (3): getRevealKicker(), getSpecialRevealCopy(), RevealKind
 
 ### Community 94 - "engines"
 Cohesion: 0.67
@@ -497,22 +515,22 @@ Cohesion: 0.50
 Nodes (3): Pedido e resultado, Revisão do salto e do navio, Validação
 
 ## Knowledge Gaps
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Andamento do projeto` connect `Andamento do projeto` to `Board`, `BoardScene`, `ANDAMENTO.md`?**
-  _High betweenness centrality (0.204) - this node is a cross-community bridge._
+- **Why does `Andamento do projeto` connect `Andamento do projeto` to `ANDAMENTO.md`?**
+  _High betweenness centrality (0.207) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.08669354838709678 - nodes in this community are weakly interconnected._
-- **Why does `AnimatedPawn()` connect `Board` to `Seletor de fichas de personagem`, `playerEmotes.ts`, `pawnPlacement.ts`, `CashHud.tsx`, `gameAudio.ts`, `GameRoom.ts`, `BoardScene.tsx`?**
-  _High betweenness centrality (0.170) - this node is a cross-community bridge._
+  _Cohesion score 0.09971509971509972 - nodes in this community are weakly interconnected._
+- **Why does `AnimatedPawn()` connect `Board` to `Seletor de fichas de personagem`, `playerEmotes.ts`, `gameFeedback.ts`, `Validação visual e de navegador`, `pawnPlacement.ts`, `CashHud.tsx`, `Andamento do projeto`, `BoardScene.tsx`?**
+  _High betweenness centrality (0.172) - this node is a cross-community bridge._
+- **Should `gameFeedback.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08970099667774087 - nodes in this community are weakly interconnected._
+- **Why does `BoardScene()` connect `Andamento do projeto` to `BoardScene.tsx`?**
+  _High betweenness centrality (0.126) - this node is a cross-community bridge._
 - **Should `Validação visual e de navegador` be split into smaller, more focused modules?**
-  _Cohesion score 0.02702702702702703 - nodes in this community are weakly interconnected._
-- **Why does `BoardScene()` connect `BoardScene` to `BoardScene.tsx`?**
-  _High betweenness centrality (0.131) - this node is a cross-community bridge._
+  _Cohesion score 0.02666666666666667 - nodes in this community are weakly interconnected._
 - **Should `Apostas — plano detalhado de implementação` be split into smaller, more focused modules?**
   _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._
-- **Should `compilerOptions` be split into smaller, more focused modules?**
-  _Cohesion score 0.1 - nodes in this community are weakly interconnected._

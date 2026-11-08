@@ -22,6 +22,7 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - A biblioteca de testes ignorava a porta livre passada a `boot` com instância de `Server`, usando 2568. Corrigido inicializando o servidor na porta escolhida; regressão falhou antes e passou depois. `npm run verify`: 436 testes e builds passaram.
 - Playtest DEV: compra de Canaã dos Carajás com duas casas apresentou custo R$ 160.000 e aluguel R$ 50.000; o saldo caiu de R$ 2.000.000 para R$ 1.840.000 e as construções apareceram. Console sem avisos ou erros.
 - Durante o turno do bot, o aviso de duplas dizia “Você joga novamente”. Corrigido para identificar a pessoa da vez, preservando “Você” para o jogador local; teste de texto cobre ambos. Em partida local, duplas forçadas mostraram a mensagem correta para o jogador local; a variante do bot foi validada pelo teste, não repetida visualmente. `npm run verify`: 437 testes e builds passaram.
+- Na revelação de Volta ao Brasil durante turno do bot, espectadores viam instrução para escolher destino. Ajustada a cópia das revelações da Volta e da Copa para distinguir quem escolhe e quem aguarda; teste direcionado cobre as duas perspectivas. Com dois clientes, a pessoa da vez viu instrução para escolher e a outra viu o nome da jogadora e orientação para aguardar; consoles sem erros. Copa coberta por teste de texto, não repetida no navegador. `npm run verify`: 438 testes e builds passaram.
 
 ## Próximo passo
 

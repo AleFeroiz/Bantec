@@ -41,7 +41,7 @@ import { adjustMoneyValue } from './moneyStepper'
 import { DEFAULT_GRAPHICS_QUALITY, type GraphicsQuality } from './graphicsQuality'
 import { isPlayerEmote, PLAYER_EMOTES, type PlayerEmote } from '../../shared/playerEmotes'
 import { getThrowableLabel, getThrowableSymbol, isThrowableObject, THROWABLES, THROW_COOLDOWN_MS, THROW_IMPACT_DURATION_MS, THROW_PROJECTILE_DURATION_MS, type ThrowableObject } from '../../shared/throwables'
-import { getRevealKicker } from './revealCopy'
+import { getRevealKicker, getSpecialRevealCopy } from './revealCopy'
 import { shouldOpenAuctionPanel } from './auctionPanelState'
 import { HOME_REGION_ROUTE } from './homeRegionRoute'
 import { buildRoomInviteUrl, getRoomInviteCode, normalizeRoomCode } from './roomInvite'
@@ -166,7 +166,7 @@ function App() {
   const [activeCardId, setActiveCardId] = useState('')
   const [activeCardUserName, setActiveCardUserName] = useState('')
   const [dismissedRevealKey, setDismissedRevealKey] = useState('')
-  const [revealSnapshot, setRevealSnapshot] = useState<{ key: string; kind: 'event' | 'world-cup' | 'world-tour'; cardId: string; title: string; description: string; noTarget: boolean } | null>(null)
+  const [revealSnapshot, setRevealSnapshot] = useState<{ key: string; kind: 'event' | 'world-cup' | 'world-tour'; cardId: string; title: string; description: string; noTarget: boolean; actorName: string; isLocal: boolean; multiplier: string } | null>(null)
   const [pendingPropertyId, setPendingPropertyId] = useState(255)
   const [worldCupSpaceId, setWorldCupSpaceId] = useState(255)
   const [worldCupHostCount, setWorldCupHostCount] = useState(0)
@@ -448,10 +448,11 @@ function App() {
   const revealKey = revealKind ? `${turnNumber}:${activePlayerSessionId}:${revealKind}:${activeCardTitle}` : ''
   const isOpponent = (candidate: SyncedPlayer) => teamFormat === 'individual' || candidate.teamId !== localPlayer?.teamId
   const cardHasNoTarget = turnPhase === 'card-target' && (propertyTargetCard && cardPropertyChoices.length === 0 || activeCardId === 'thief' && !roomPlayers.some((candidate) => candidate.sessionId !== localSessionId && !candidate.isBankrupt && isOpponent(candidate)) || (activeCardId === 'swap' || activeCardId === 'communism') && roomPlayers.filter((candidate) => !candidate.isBankrupt).length < 2)
-  const visibleReveal = revealKind ? { key: revealKey, kind: revealKind, cardId: activeCardId, title: activeCardTitle, description: activeCardDescription, noTarget: cardHasNoTarget || (revealSnapshot?.key === revealKey && revealSnapshot.noTarget) } : revealSnapshot
+  const currentReveal = revealKind ? { key: revealKey, kind: revealKind, cardId: activeCardId, title: activeCardTitle, description: activeCardDescription, noTarget: cardHasNoTarget || (revealSnapshot?.key === revealKey && revealSnapshot.noTarget), actorName: activePlayer?.name ?? '', isLocal: isMyTurn, multiplier: getWorldCupRentMultiplier(worldCupHostCount + 1, matchOptions.cupInitialMultiplier).toLocaleString('pt-BR') } : null
+  const visibleReveal = currentReveal ?? revealSnapshot
   const showTransientReveal = Boolean(visibleReveal && visibleReveal.key !== dismissedRevealKey)
   useEffect(() => {
-    if (revealKind && revealKey) setRevealSnapshot({ key: revealKey, kind: revealKind, cardId: activeCardId, title: activeCardTitle, description: activeCardDescription, noTarget: cardHasNoTarget })
+    if (currentReveal) setRevealSnapshot(currentReveal)
   }, [revealKey])
   const selectingPlayer = isMyTurn && turnPhase === 'card-target' && !showTransientReveal && (activeCardId === 'thief' || activeCardId === 'swap' || activeCardId === 'communism' || activeCardId === 'generous' && selectedCardPropertyId !== null)
   const companyDieResultVisible = dice[0] > 0 && dice[1] === 0 && ['resolve', 'debt', 'buyback'].includes(turnPhase)
@@ -1520,7 +1521,7 @@ function App() {
           {auctionBoardSelection && <div className="map-choice-prompt" role="status">Escolha uma propriedade iluminada para anunciar ou pedir leilão <button type="button" onClick={() => setAuctionBoardSelection(false)}>Cancelar</button></div>}
           {showTransientReveal && visibleReveal && <div className="card-reveal-backdrop"><article className="game-event-card" role="dialog" aria-modal="true" aria-label="Carta revelada"><span className="event-card-kicker">{getRevealKicker(visibleReveal.kind)}</span>{visibleReveal.kind !== 'event' || EVENT_CARDS.some((card) => card.id === visibleReveal.cardId)
               ? <img className="event-card-art event-card-illustration" src={`${import.meta.env.BASE_URL}assets/event-cards/${visibleReveal.kind === 'event' ? visibleReveal.cardId : visibleReveal.kind}.webp`} alt="" />
-              : <div className="event-card-art" aria-hidden="true">◆</div>}<h2>{visibleReveal.kind === 'event' ? visibleReveal.title : visibleReveal.kind === 'world-cup' ? 'Escolha a sede' : 'Escolha para onde viajar'}</h2>{visibleReveal.kind === 'event' && <small className="card-user-attribution">{activeCardUserName} usa esta carta</small>}<p>{visibleReveal.kind === 'event' ? visibleReveal.description : visibleReveal.kind === 'world-cup' ? `Toque em uma cidade sua iluminada no tabuleiro. O aluguel da sede valerá ${getWorldCupRentMultiplier(worldCupHostCount + 1, matchOptions.cupInitialMultiplier).toLocaleString('pt-BR')}×.` : 'Toque em uma casa iluminada. Propriedades de outras pessoas ficam indisponíveis.'}</p>{visibleReveal.noTarget && <p className="card-no-target">Não existe alvo disponível.</p>}<button type="button" className="card-reveal-ok" onClick={dismissTransientReveal}>OK</button><small>A carta avança automaticamente após {CARD_REVEAL_SECONDS} segundos.</small></article></div>}
+              : <div className="event-card-art" aria-hidden="true">◆</div>}<h2>{visibleReveal.kind === 'event' ? visibleReveal.title : getSpecialRevealCopy(visibleReveal.kind, visibleReveal.isLocal, visibleReveal.actorName, visibleReveal.multiplier).title}</h2>{visibleReveal.kind === 'event' && <small className="card-user-attribution">{activeCardUserName} usa esta carta</small>}<p>{visibleReveal.kind === 'event' ? visibleReveal.description : getSpecialRevealCopy(visibleReveal.kind, visibleReveal.isLocal, visibleReveal.actorName, visibleReveal.multiplier).description}</p>{visibleReveal.noTarget && <p className="card-no-target">Não existe alvo disponível.</p>}<button type="button" className="card-reveal-ok" onClick={dismissTransientReveal}>OK</button><small>A carta avança automaticamente após {CARD_REVEAL_SECONDS} segundos.</small></article></div>}
           <div className="game-bottom"><span className="game-sync-label">JOGADA SINCRONIZADA · {modeDetails[mode].title.toUpperCase()}</span><button className="leave-button" onClick={() => void leaveRoom()}>Sair da mesa</button></div>
         </section>
       )}
