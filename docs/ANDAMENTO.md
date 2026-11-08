@@ -14,6 +14,7 @@
 - Corrigido aviso de jogada extra em duplas usadas para sair da prisão; teste direcionado cobre rolagem normal, prisão e terceira dupla. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
 - Corrigidos leilão enfileirado que podia iniciar com comprador em dívida e bot travado após reconexão manual e segunda queda. Testes cobrem devolução, quitação e bloqueio da conexão antiga; 446 testes e builds passaram. Próximo passo: investigar reserva pendente ao encerrar a partida.
 - Encerramento com reservas de leilão conferido: pedido pendente, pedido aceito ainda enfileirado e disputa ativa agora são verificados antes do cálculo de patrimônio final. Os dois primeiros reproduziram saldo omitido e vencedor incorreto; três cenários passam com a liquidação antes do placar. `npm run verify`: 449 testes em 76 arquivos e builds web/servidor passaram; próximo passo: revisar fluxos restantes de conexão, partida e interfaces.
+- Revisão responsiva em sala real: lobby e HUD couberam em 320, 390, 768, 1024 e 1280 × 720 sem rolagem horizontal nos pontos medidos; viewport voltou ao padrão e console do navegador sem erros/avisos. Código salvo de sala já descartada repete aviso de falha após atualizar; usuário consultado sobre apagar somente quando o servidor confirma sala inexistente ou manter para nova tentativa.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

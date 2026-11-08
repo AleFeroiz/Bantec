@@ -1269,3 +1269,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 - `finishMatch` agora interrompe relógios e liquida reservas de leilões antes de calcular caixa final, patrimônio e vencedor. Os dois cenários verificam devolução, caixa final, vencedor esperado e limpeza do pedido/enfileiramento; passaram no teste direcionado.
 - Cobertura adicional para leilão ativo confirma que o lance é devolvido antes do placar, a disputa é encerrada e o maior patrimônio vence.
 - `npm run verify` passou com 449 testes em 76 arquivos; builds Vite e servidor passaram. O Vite manteve o aviso do bundle principal acima de 500 kB (1.495,38 kB; gzip 428,07 kB).
+
+### 2026-11-08 — Revisão visual responsiva e retomada de sala
+
+- Playtest local com seis participantes/bots: lobby revisado em 320 × 844, 390 × 844, 768 × 900, 1024 × 768 e 1280 × 720; HUD da partida conferido em 320 × 844 e 1280 × 720. Não houve rolagem horizontal (largura do documento igual à viewport); seis assentos couberam em 320 px. Console do navegador sem erros/avisos. Viewport restaurada e sessões locais de Vite/Colyseus encerradas.
+- Registro local apontava à sala `KAUS3`, já descartada. Retomada falha com mensagem na home; após atualizar a página a mensagem reaparece. O estado do servidor estava disponível; logs confirmaram sala descartada. Preferência solicitada: apagar lembrança só se sala inexistente, preservando-a em falhas de rede, ou mantê-la sempre.
