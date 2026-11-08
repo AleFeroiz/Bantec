@@ -1561,6 +1561,27 @@ describe('sala privada', () => {
     }
   })
 
+  it('preserva o resultado quando alguém sai e permite descarte da sala encerrada', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    room.state.players.get(host.sessionId)!.cash = 3_000_000
+    const serverRoom = room as unknown as { finishMatch: (reason: 'timeout') => void }
+    serverRoom.finishMatch('timeout')
+    expect(room.state.winnerSessionId).toBe(host.sessionId)
+    await host.leave()
+    await waitFor(() => room.state.players.get(host.sessionId)?.isConnected === false)
+    expect(room.state.players.get(host.sessionId)?.finalCash).toBe(3_000_000)
+    expect(room.state.winnerSessionId).toBe(host.sessionId)
+    expect(room.state.players.has(guest.sessionId)).toBe(true)
+    expect(room.autoDispose).toBe(true)
+    await guest.leave()
+    await waitFor(() => !colyseus.getRoomById(room.roomId), 4000)
+  })
+
   it('registra a falência como causa quando resta uma pessoa solvente', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })

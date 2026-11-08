@@ -1750,9 +1750,9 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     this.stopClocks()
     if (this.reconnectRetentionTimer) {
       this.clearReconnectRetention()
-      this.autoDispose = true
       if (![...this.state.players.values()].some((player) => player.isConnected && !player.isBot)) this.disconnect()
     }
+    this.autoDispose = true
     const endingReason = reason === 'timeout' ? 'Tempo esgotado.' : reason === 'bankruptcy' ? 'Partida encerrada após falência.' : reason === 'no-solvent-players' ? 'Partida encerrada sem jogadores solventes.' : 'Partida encerrada por monopólio.'
     const tieBreak = winner?.player.tieBreakRoll ? ` Desempate nos dados: ${winner.player.tieBreakRoll}.` : ''
     this.state.landingDescription = winner
@@ -2469,6 +2469,14 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       player.reconnectionExpired = true
       this.reconnectedSessionIds.delete(client.sessionId)
       if (![...this.state.players.values()].some((candidate) => candidate.isConnected && !candidate.isBot)) this.retainRoomForReconnect()
+      return
+    }
+    if (this.state.status === 'ended' && player) {
+      player.isConnected = false
+      player.controllerSessionId = ''
+      player.reconnectionExpired = true
+      this.reconnectedSessionIds.delete(client.sessionId)
+      this.droppedControllerSessionIds.delete(sessionId)
       return
     }
     this.reconnectedSessionIds.delete(client.sessionId)

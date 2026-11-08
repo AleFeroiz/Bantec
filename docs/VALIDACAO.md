@@ -1242,3 +1242,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 # Prazo de escolha de carta — 2026-11-07
 
 - Teste de integração atualizado para verificar explicitamente 20 segundos após a revelação, conforme a regra, corrigindo título antigo de 15 segundos. `npm run verify`: 441 testes e builds passaram.
+
+# Placar e descarte após encerramento — 2026-11-07
+
+- Teste de integração reproduziu a exclusão do vencedor do estado após sua saída e o descarte automático desligado. Após a correção, o vencedor e seu saldo final permanecem para quem observa; ao sair a última pessoa, a sala é descartada.
+- `npm run verify`: 442 testes e builds web/servidor passaram. A apresentação visual do encerramento não foi repetida nesta etapa.
