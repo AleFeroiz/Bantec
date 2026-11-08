@@ -11,6 +11,7 @@
 - Conferido o prazo de alvo de carta: teste existente tinha título antigo de 15 segundos e agora verifica explicitamente os 20 segundos previstos. Suíte e builds passaram.
 - Corrigido encerramento: saída preserva o participante no placar e a sala volta ao descarte automático. Regressão reproduziu as duas falhas; 442 testes e builds passaram.
 - Corrigida descrição da vitória por falência, que exibia identificador interno como equipe; testes cobrem individual e equipe. `npm run verify`: 443 testes e builds passaram.
+- Corrigido aviso de jogada extra em duplas usadas para sair da prisão; teste direcionado cobre rolagem normal, prisão e terceira dupla. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

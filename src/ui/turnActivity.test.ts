@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity.js'
+import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldAnnounceExtraRoll, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity.js'
 
 describe('atividade do jogador da vez', () => {
   it('atribui a jogada extra a quem tirou duplas', () => {
     expect(getDoublesAnnouncement('Ana', true)).toBe('Você joga novamente')
     expect(getDoublesAnnouncement('Bot 1', false)).toBe('Bot 1 joga novamente')
+  })
+
+  it('não promete rolagem extra para duplas da prisão ou terceira dupla', () => {
+    expect(shouldAnnounceExtraRoll('roll', 3, 3, false, '')).toBe(true)
+    expect(shouldAnnounceExtraRoll('jail', 3, 3, false, 'Você saiu da prisão.')).toBe(false)
+    expect(shouldAnnounceExtraRoll('roll', 3, 3, true, 'Duplas três vezes seguidas.')).toBe(false)
+    expect(shouldAnnounceExtraRoll('roll', 3, 4, false, '')).toBe(false)
   })
   it('descreve cada fase para os outros participantes', () => {
     expect(getTurnActivityLabel('rolling')).toBe('Girando os dados')

@@ -28,6 +28,7 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - Conferência das regras contra testes existentes identificou título desatualizado de 15 segundos para alvo de carta; a regra vigente é 20. O teste foi atualizado para verificar explicitamente 20 segundos em vez de depender apenas da constante da implementação. `npm run verify`: 441 testes e builds passaram.
 - No encerramento, a saída de uma pessoa removia seu registro do placar e o descarte automático podia permanecer desativado. Regressão reproduziu ambos; corrigido para preservar participantes no resultado e descartar a sala após a última saída. `npm run verify`: 442 testes e builds passaram.
 - Na falência, a descrição da vitória usava identificador interno como nome da equipe, inclusive no modo individual. Regressão reproduziu o erro; mensagens foram corrigidas para nome da pessoa ou número da equipe, com testes direcionados em ambos os formatos. `npm run verify`: 443 testes e builds passaram.
+- Na saída da prisão por duplas, o servidor já retirava o estado de prisão antes da UI receber os dados; por isso o aviso de jogada extra podia aparecer apesar de a regra não concedê-la. A condição agora exige rolagem normal anterior; teste direcionado cobre prisão, terceira dupla e rolagem comum. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
 
 ## Próximo passo
 

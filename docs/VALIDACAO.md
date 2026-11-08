@@ -1252,3 +1252,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - A regressão reproduziu mensagem com identificador interno em vez do nome da vencedora no modo individual. A correção apresenta o nome da pessoa ou o número da equipe, testados no servidor.
 - `npm run verify`: 443 testes e builds web/servidor passaram. Não houve revisão visual específica da tela final nesta etapa.
+
+# Duplas para sair da prisão — 2026-11-07
+
+- A UI podia prometer jogada extra após duplas usadas para sair da prisão, pois o estado de prisão já havia sido limpo. A condição usa a fase anterior e foi testada contra rolagem normal, saída da prisão, terceira dupla e dados distintos.
+- `npm run verify`: 444 testes e builds passaram. O cenário específico não foi repetido visualmente.

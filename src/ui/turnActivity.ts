@@ -4,6 +4,10 @@ export function getDoublesAnnouncement(playerName: string, isLocalPlayer: boolea
   return isLocalPlayer ? 'Você joga novamente' : `${playerName || 'A pessoa da vez'} joga novamente`
 }
 
+export function shouldAnnounceExtraRoll(previousPhase: ActivityPhase, dieOne: number, dieTwo: number, isJailed: boolean, description: string) {
+  return previousPhase === 'roll' && dieOne === dieTwo && !isJailed && !description.includes('três vezes seguidas')
+}
+
 export function isBoardSelectionGuidanceActive(hasBoardChoice: boolean, showingCardReveal: boolean) {
   return hasBoardChoice && !showingCardReveal
 }

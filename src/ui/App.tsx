@@ -27,7 +27,7 @@ import { getOwnedPropertySpaceIds, shouldShowPlayerInspection } from './playerOw
 import { getDiceDestinationSpaceId } from './arrowGuidance'
 import type { GameFeedbackItem } from './feedbackQueue'
 import { playGameSound, startGameMusic, stopGameMusic, unlockGameAudio } from './gameAudio'
-import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity'
+import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldAnnounceExtraRoll, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity'
 import { getBoardSpaceInteraction } from './boardInteraction'
 import { CashHudSymbols } from './CashHudSymbols'
 import { shouldShowRolledDice } from './dicePresentation'
@@ -705,7 +705,7 @@ function App() {
           setDiceRollSequence((sequence) => sequence + 1)
           setDiceForPawnMovement(true)
           const active = snapshot.players.get(snapshot.activePlayerSessionId)
-          if (snapshot.diceOne === snapshot.diceTwo && !active?.isJailed && !snapshot.landingDescription.includes('três vezes seguidas')) {
+          if (shouldAnnounceExtraRoll(previous.turnPhase, snapshot.diceOne, snapshot.diceTwo, Boolean(active?.isJailed), snapshot.landingDescription)) {
             setDoublesAnnouncement(getDoublesAnnouncement(active?.name ?? '', active?.controllerSessionId === room.sessionId || snapshot.activePlayerSessionId === room.sessionId))
             window.setTimeout(() => setDoublesAnnouncement(''), 2200)
           }
