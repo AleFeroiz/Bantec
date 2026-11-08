@@ -50,6 +50,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
   private pendingCardPayments: { sessionId: string; amount: number; reason: string }[] = []
   private pendingCardPaymentActorSessionId = ''
   private cardTargetRevealPending = false
+  private worldCupChoiceRandomDefault = false
   private devNextEventCardId = ''
   private consecutiveDoubles = 0
   private lastRollWasDouble = false
@@ -1162,6 +1163,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
       }
       this.state.worldCupSpaceId = propertyId
       this.state.worldCupHostCount += 1
+      this.worldCupChoiceRandomDefault = false
       this.broadcast('game:city-effect', { id: ++this.throwSequence, spaceId: propertyId, effect: 'world-cup' })
       this.state.turnPhase = 'resolve'
       this.state.landingDescription = `${space.name} será sede da Copa do Mundo. O aluguel agora vale ${getWorldCupRentMultiplier(this.state.worldCupHostCount, this.state.cupInitialMultiplier).toLocaleString('pt-BR')}× o valor normal.`
@@ -1430,7 +1432,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     else if (phase === 'start-upgrade') this.messages.startUpgrade(client, { accept: false })
     else if (phase === 'resolve') this.messages.finishTurn(client)
     else if (phase === 'jail') this.messages.finishTurn(client)
-    else if (phase === 'world-cup') this.chooseDefaultWorldCup(client, sessionId, this.state.activeCardId !== '')
+    else if (phase === 'world-cup') this.chooseDefaultWorldCup(client, sessionId, this.worldCupChoiceRandomDefault)
     else if (phase === 'world-tour') this.messages.chooseWorldTour(client, { spaceId: this.getWorldTourDefaultDestination(sessionId, true) })
     else if (phase === 'card-target') {
       this.cardTargetRevealPending = false
@@ -2139,7 +2141,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     } else if (card.effect.kind === 'world-tour') {
       this.startCardTeleport(sessionId, player, 30, 'Carta Volta ao Brasil: chegada ao canto. Escolha seu destino.')
     } else if (card.effect.kind === 'world-cup') {
-      this.startCardTeleport(sessionId, player, 20, 'Carta Sede da Copa: chegada ao canto.')
+      this.startCardTeleport(sessionId, player, 20, 'Carta Sede da Copa: chegada ao canto.', true)
     } else if (card.effect.kind === 'world-cup-city') {
       const venueId = this.state.worldCupSpaceId
       if (venueId === 255 || boardSpaces[venueId]?.kind !== 'property') {
@@ -2166,7 +2168,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     return EVENT_CARDS[randomInt(EVENT_CARDS.length)]
   }
 
-  private startCardTeleport(sessionId: string, player: LobbyPlayerState, destinationId: number, description: string) {
+  private startCardTeleport(sessionId: string, player: LobbyPlayerState, destinationId: number, description: string, randomizeWorldCupTimeout = false) {
     const startPosition = player.position
     const distance = (destinationId - startPosition + boardSpaces.length) % boardSpaces.length
     const passesStart = distance > 0 && startPosition + distance >= boardSpaces.length
@@ -2182,7 +2184,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     this.schedulePresentation(getAnimationDuration(PAWN_TELEPORT_ANIMATION_DURATION_MS, this.state.presentationSpeed), () => {
       if (this.state.turnPhase !== 'moving' || this.state.activePlayerSessionId !== sessionId || player.position !== destinationId) return
       this.state.pawnMoveMode = 'walk'
-      this.resolveSpace(sessionId, player, false, travelDescription)
+      this.resolveSpace(sessionId, player, false, travelDescription, randomizeWorldCupTimeout)
       this.finishExpiredPhaseIfReady()
     })
   }
@@ -2298,6 +2300,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         })()
       : this.getWorldCupDefaultPropertyId(sessionId)
     if (propertyId < 0) {
+      this.worldCupChoiceRandomDefault = false
       this.state.turnPhase = 'resolve'
       this.state.landingDescription += ' Você não possui cidades elegíveis para sediar a Copa; não há uma sede disponível.'
       this.finishExpiredPhaseIfReady()
@@ -2339,7 +2342,8 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     })
   }
 
-  private resolveSpace(sessionId: string, player: LobbyPlayerState, drawEvent = true, descriptionPrefix = '') {
+  private resolveSpace(sessionId: string, player: LobbyPlayerState, drawEvent = true, descriptionPrefix = '', randomizeWorldCupTimeout = false) {
+    this.worldCupChoiceRandomDefault = false
     const space = boardSpaces[player.position]
     this.state.pendingPropertyId = 255
     this.state.turnPhase = 'resolve'
@@ -2416,6 +2420,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
         this.state.turnPhase = 'resolve'
         this.state.landingDescription += ' Você não possui cidades elegíveis para sediar a Copa; não há uma sede disponível.'
       } else {
+        this.worldCupChoiceRandomDefault = randomizeWorldCupTimeout
         this.state.turnPhase = 'world-cup'
         this.state.landingDescription += ' Escolha uma cidade sua para sediar o evento.'
       }

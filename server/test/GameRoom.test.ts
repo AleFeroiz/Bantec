@@ -2278,6 +2278,55 @@ describe('sala privada', () => {
     expect(room.state.landingDescription).toContain('Volta ao Brasil')
   })
 
+  it('sorteia uma cidade válida quando expira a escolha de sede da Copa iniciada por carta', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    host.onMessage('game:started', () => {})
+    guest.onMessage('game:started', () => {})
+    host.onMessage('game:city-effect', () => {})
+    guest.onMessage('game:city-effect', () => {})
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const venues = boardSpaces.filter((space) => space.kind === 'property' && space.company !== true).slice(0, 2)
+    for (const venue of venues) {
+      const title = new PropertyState()
+      title.ownerSessionId = host.sessionId
+      room.state.properties.set(String(venue.id), title)
+    }
+    const player = room.state.players.get(host.sessionId)!
+    const game = room as unknown as {
+      drawEventCard: () => EventCard
+      resolveEventCard: (sessionId: string, player: typeof player) => void
+      schedulePresentation: (delay: number, action: () => void) => void
+      chooseDefaultWorldCup: (client: { sessionId: string }, sessionId: string, random?: boolean) => void
+      updateTurnClock: () => void
+      turnTimerKey: string
+    }
+    game.drawEventCard = () => EVENT_CARDS.find((card) => card.id === 'world-cup')!
+    game.schedulePresentation = (_delay, action) => action()
+    game.resolveEventCard(host.sessionId, player)
+    expect(room.state.turnPhase).toBe('world-cup')
+    expect(room.state.activeCardId).toBe('')
+    game.schedulePresentation = () => {}
+
+    let randomDefault: boolean | undefined
+    const chooseDefault = game.chooseDefaultWorldCup.bind(room)
+    game.chooseDefaultWorldCup = (client, sessionId, random = false) => {
+      randomDefault = random
+      chooseDefault(client as never, sessionId, random)
+    }
+    room.state.turnSeconds = 1
+    game.turnTimerKey = `${room.state.turnNumber}:${host.sessionId}:world-cup`
+    game.updateTurnClock()
+
+    expect(randomDefault).toBe(true)
+    expect(venues.map((venue) => venue.id)).toContain(room.state.worldCupSpaceId)
+    expect(room.state.turnPhase).toBe('resolve')
+  })
+
   it('percorre todas as casas ao escolher um destino atrás na Volta ao Brasil', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
