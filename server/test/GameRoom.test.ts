@@ -8,7 +8,7 @@ import { PropertyState } from '../src/rooms/schema/LobbyState.js'
 import { boardSpaces, getLineTitleIds } from '../../shared/board.js'
 import { EVENT_CARDS, type EventCard } from '../../shared/cards.js'
 import { CARD_REVEAL_SECONDS, CARD_TARGET_SECONDS } from '../../shared/game.js'
-import { PAWN_STEP_ANIMATION_DURATION_MS, getAnimationDuration } from '../../shared/game.js'
+import { DICE_ANIMATION_DURATION_MS, PAWN_STEP_ANIMATION_DURATION_MS, getAnimationDuration } from '../../shared/game.js'
 import { BET_MINIMUM } from '../../shared/betting.js'
 import { PROPERTY_HOTEL_LEVEL, START_BONUS, STARTING_CASH, TURN_DECISION_SECONDS, TURN_ROLL_SECONDS, bankReturnValue, buildingSaleValue, calculateRent, constructionCost, forcedBuybackCost, getWorldCupRentMultiplier, taxForSpace } from '../../shared/game.js'
 
@@ -2459,6 +2459,51 @@ describe('sala privada', () => {
     expect(room.state.landingDescription).toContain(`D6 ${dieRoll}`)
     expect(visitor.cash).toBe(STARTING_CASH - 50_000 * dieRoll)
     expect(owner.cash).toBe(STARTING_CASH + 50_000 * dieRoll)
+  })
+
+  it('lança automaticamente o D6 e aplica o aluguel quando expira a escolha da companhia', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    host.onMessage('game:started', () => {})
+    guest.onMessage('game:started', () => {})
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const company = boardSpaces.find((space) => space.company)!
+    const title = new PropertyState()
+    title.ownerSessionId = host.sessionId
+    room.state.properties.set(String(company.id), title)
+    const visitor = room.state.players.get(guest.sessionId)!
+    const owner = room.state.players.get(host.sessionId)!
+    visitor.position = company.id
+    room.state.activePlayerSessionId = guest.sessionId
+    const visitorCash = visitor.cash
+    const ownerCash = owner.cash
+    const game = room as unknown as {
+      resolveSpace: (sessionId: string, player: typeof visitor) => void
+      schedulePresentation: (delay: number, action: () => void) => void
+      updateTurnClock: () => void
+      turnTimerKey: string
+    }
+    game.resolveSpace(guest.sessionId, visitor)
+    expect(room.state.turnPhase).toBe('company-roll')
+    game.schedulePresentation = (delay, action) => {
+      if (delay === getAnimationDuration(DICE_ANIMATION_DURATION_MS, room.state.animationSpeed)) action()
+    }
+    room.state.turnSeconds = 1
+    game.turnTimerKey = `${room.state.turnNumber}:${guest.sessionId}:company-roll`
+    game.updateTurnClock()
+
+    const dieRoll = room.state.diceOne
+    expect(dieRoll).toBeGreaterThanOrEqual(1)
+    expect(dieRoll).toBeLessThanOrEqual(6)
+    expect(room.state.diceTwo).toBe(0)
+    expect(room.state.turnPhase).toBe('resolve')
+    expect(room.state.landingDescription).toContain(`D6 ${dieRoll}`)
+    expect(visitor.cash).toBe(visitorCash - 50_000 * dieRoll)
+    expect(owner.cash).toBe(ownerCash + 50_000 * dieRoll)
   })
 
   it('passa a vez sozinho quando uma chegada não oferece decisão', async () => {
