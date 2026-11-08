@@ -37,7 +37,9 @@ export function getCameraFraming(width: number, height: number, tiltDegrees = 16
     const verticalDistance = depthOffset + Math.abs(towardCamera * cosTilt) / Math.tan(verticalHalfFov)
     return Math.max(maximum, horizontalDistance, verticalDistance)
   }, 0)
-  const distance = requiredDistance * FRAME_MARGIN
+  // Desktop cards occupy the top of the canvas; leave room above the board.
+  const margin = width >= 900 && aspect >= 1.2 ? 1.55 : FRAME_MARGIN
+  const distance = requiredDistance * margin
   const position: [number, number, number] = [
     distance * sinTilt * sinAzimuth,
     distance * cosTilt,

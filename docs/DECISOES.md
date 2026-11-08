@@ -8,6 +8,8 @@ Após criar ou entrar na sala, mostrar até seis fichas 3D em plataformas, com n
 
 ## Confirmadas e vigentes
 
+- **Enquadramento desktop (2026-11-07):** reduzir o tabuleiro na vista inicial para afastá-lo dos cartões de participantes, mantendo os cartões onde estão; preservar o enquadramento móvel e os controles de câmera.
+
 - **Nomes únicos na sala (2026-11-07):** impedir nomes repetidos para evitar recuperação ambígua de cadeira. Comparam-se nomes normalizados, preservando a distinção entre maiúsculas e minúsculas já adotada na reconexão; bots também recebem nomes livres. A recuperação por código e nome de uma cadeira desconectada permanece disponível.
 
 - **Modo de times (2026-11-07):** individual continua disponível; a anfitriã pode escolher duplas ou trios. Cada pessoa escolhe sua equipe no lobby; integrantes preservam dinheiro, títulos, dívidas, posição e turnos individuais. As condições de vitória atuais se aplicam à equipe somando títulos; aliados não pagam aluguel entre si. Ao cair em cidade de aliado, o visitante pode pagar a melhoria, que permanece no nome e patrimônio do proprietário. A falência elimina somente a pessoa; a equipe segue com integrantes solventes. Cada equipe escolhe uma paleta predefinida para seus integrantes: azul/ciano, vermelho/laranja, roxo/rosa, amarelo/marrom ou branco/preto. Cartões e fichas representam a mesma cor do participante. O lobby mostra o modo escolhido e agrupa vagas e participantes por equipe. Encaminhamentos de cartas, leilões, desempate e bots estão em [REGRAS-DE-JOGO.md](REGRAS-DE-JOGO.md) e [modo-times.md](trabalho/modo-times.md).

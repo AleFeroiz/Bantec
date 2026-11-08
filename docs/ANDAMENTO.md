@@ -2,6 +2,7 @@
 
 - Revisão de regras, rede, interface e testes em andamento; escopo e evidências em [revisao-ponta-a-ponta.md](trabalho/revisao-ponta-a-ponta.md).
 - Decisão do usuário: impedir nomes repetidos na sala. Implementação validada com 429 testes, builds e dois clientes no navegador; reconexão por nome exato preservada. Próximo passo: revisar concorrência e demais fluxos de conexão, partida e interface desktop/mobile.
+- A sobreposição em 1280 × 720 foi confirmada e o usuário escolheu reduzir o tabuleiro; a câmera foi ajustada e revista em desktop e celular. Teste de projeção, 431 testes e builds passaram; revisão com mais participantes segue pendente.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)

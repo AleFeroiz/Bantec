@@ -6,9 +6,18 @@ describe('enquadramento da câmera do tabuleiro', () => {
     const framing = getCameraFraming(1440, 900)
 
     expect(framing.tilt).toBe(16)
-    expect(framing.distance).toBeLessThan(31)
+    expect(framing.distance).toBeLessThan(45)
     expect(framing.position[0]).toBeCloseTo(framing.position[2])
     expect(framing.up).toEqual([0, 1, 0])
+  })
+
+  it('reserva espaço para os cartões acima do tabuleiro em desktop 1280 × 720', () => {
+    const framing = getCameraFraming(1280, 720)
+    const corner = -6.2 * Math.SQRT2
+    const tilt = framing.tilt * Math.PI / 180
+    const projectedY = -corner * Math.cos(tilt) / ((framing.distance - corner * Math.sin(tilt)) * Math.tan(framing.fov * Math.PI / 360))
+    const topPixel = (1 - projectedY) * 720 / 2
+    expect(topPixel).toBeGreaterThan(155)
   })
 
   it('permite vista top-down e limita a inclinação ao máximo do controle', () => {

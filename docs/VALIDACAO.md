@@ -1199,3 +1199,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - O teste de nome normalizado duplicado falhou antes da correção e passou depois. Testes adicionais cobrem colisões com bots e entradas simultâneas; a suíte completa anterior passou com 429 testes e ambos os builds.
 - Em dois clientes locais, nome duplicado mostrou a mensagem específica e um nome diferente entrou na sala. A revisão de partida, rede degradada e responsividade continua na nota [revisao-ponta-a-ponta.md](trabalho/revisao-ponta-a-ponta.md).
+
+# Enquadramento desktop — 2026-11-07
+
+- Em 1280 × 720, cartões cobriam o canto superior. Com o enquadramento ajustado, o canto ficou livre em partida com dois participantes e propriedades compradas; em 390 × 844 a composição permaneceu visível. Console sem avisos ou erros. Ainda falta revisar mais participantes e outras proporções.
+- Teste de projeção para 1280 × 720 falhou antes e passou depois; seis testes de câmera passaram. `npm run verify`: 431 testes e builds web/servidor passaram.
