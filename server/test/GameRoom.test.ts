@@ -2607,6 +2607,11 @@ describe('sala privada', () => {
     room.state.turnPhase = 'purchase'
     room.state.pendingPropertyId = boardSpaces.find((space) => space.kind === 'property')!.id
     room.state.turnSeconds = 0
+    server.turnTimerKey = `${room.state.turnNumber}:stale-session:purchase`
+    server.recoverExpiredTurn()
+    expect(room.state.turnPhase).toBe('purchase')
+    expect(room.state.turnSeconds).toBe(0)
+
     server.turnTimerKey = `${room.state.turnNumber}:${room.state.activePlayerSessionId}:purchase`
     server.recoverExpiredTurn()
     expect(room.state.turnPhase).toBe('resolve')
