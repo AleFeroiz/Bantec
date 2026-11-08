@@ -2673,6 +2673,32 @@ describe('sala privada', () => {
     expect(room.state.turnPhase).toBe('resolve')
   })
 
+  it('declara falência ao recuperar dívida vencida sem ativos liquidáveis', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const host = await colyseus.connectTo(room, { name: 'Ana' })
+    const guest = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    host.send('start')
+    await waitFor(() => room.state.status === 'playing')
+
+    const debtor = room.state.players.get(host.sessionId)!
+    debtor.cash = 0
+    room.state.activePlayerSessionId = host.sessionId
+    room.state.turnPhase = 'debt'
+    room.state.debtAmount = 20_000
+    room.state.debtReason = 'taxa'
+    room.state.turnSeconds = 0
+
+    const server = room as unknown as { recoverExpiredTurn: () => void; turnTimerKey: string }
+    server.turnTimerKey = `${room.state.turnNumber}:${host.sessionId}:debt`
+    server.recoverExpiredTurn()
+
+    expect(debtor.isBankrupt).toBe(true)
+    expect(room.state.status).toBe('ended')
+    expect(room.state.winnerSessionId).toBe(guest.sessionId)
+    expect(room.state.debtAmount).toBe(0)
+  })
+
   it('concede 20 segundos completos para selecionar o alvo depois de fechar a carta', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
