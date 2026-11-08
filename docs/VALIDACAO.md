@@ -1,3 +1,8 @@
+### 2026-11-08 — Revisão de compra e inspeção de propriedade
+
+- Com Vite e Colyseus locais, `/health` respondeu HTTP 200 e a home mostrou “SERVIDOR DISPONÍVEL”; a lembrança de sala descartada mostrou a mensagem de falha já registrada. A decisão sobre limpar essa lembrança continua pendente.
+- Em sala descartável, a prontidão e o início com bot funcionaram. A compra do pacote de terreno de Belém debitou R$ 120.000 e atualizou o saldo para R$ 1.880.000. O inspetor de Canaã dos Carajás exibiu status, preço e aluguéis dos quatro níveis. As opções da partida rolaram até o fim com rodapé fixo, e o relógio seguiu correndo.
+- Revisão visual em 1280 × 720 não encontrou sobreposição nos estados observados. A sessão não permitiu emular multitouch nem forçar perda real de contexto WebGL; esses dois pontos permanecem sem validação manual. Nenhum código foi alterado. Ao encerrar, confirmei as portas locais 5173 e 2567 livres.
 ### 2026-11-07 — Ingressos acumuláveis para apostas
 
 - `npm run verify` passou: 427 testes em 75 arquivos; build Vite e build TypeScript do servidor passaram. O bundle principal permanece acima de 500 kB e gera o aviso conhecido do Vite.
