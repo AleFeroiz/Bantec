@@ -1,4 +1,4 @@
-import { ColyseusTestServer, boot } from '@colyseus/testing'
+import { ColyseusTestServer } from '@colyseus/testing'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GameRoom } from '../src/rooms/GameRoom.js'
 import { createServer } from 'node:net'
@@ -44,9 +44,12 @@ async function getAvailablePort() {
 
 describe('sala privada', () => {
   let colyseus: ColyseusTestServer<typeof appConfig>
+  let selectedPort: number
 
   beforeAll(async () => {
-    colyseus = await boot(appConfig, await getAvailablePort())
+    selectedPort = await getAvailablePort()
+    await appConfig.listen(selectedPort)
+    colyseus = new ColyseusTestServer(appConfig)
   })
 
   afterAll(async () => {
@@ -59,6 +62,11 @@ describe('sala privada', () => {
   })
 
   afterEach(() => vi.restoreAllMocks())
+
+  it('usa a porta livre escolhida para o servidor de testes', () => {
+    const transport = colyseus.server.transport as unknown as { server: { address: () => { port: number } } }
+    expect(transport.server.address().port).toBe(selectedPort)
+  })
 
   it('informa disponibilidade do servidor ao navegador de outra origem', async () => {
     const transport = colyseus.server.transport as unknown as { server: { address: () => { port: number } } }

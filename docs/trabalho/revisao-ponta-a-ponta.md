@@ -19,8 +19,8 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - A suíte de integração existente cobre queda e reconexão no lobby, bot assumindo o turno, preservação de imóveis, retomada com seis lugares e dívida durante desconexão. Esses testes não simulam latência, perda de pacotes ou interrupções do serviço em produção.
 - Teste de integração adicional confirmou que, após a queda do vendedor com pedido de leilão pendente, o bot responde e a reserva do comprador permanece no lance inicial.
 - Indicador da entrada mostrava “MESA ONLINE” sem verificar o servidor. O usuário escolheu mostrar a disponibilidade real; implementado endpoint leve e verificação periódica com a página visível. Navegador mostrou inacessível com servidor parado, disponível após iniciá-lo e reconectando ao interromper sala; cabeçalho coube em 320 px. `npm run verify`: 435 testes e builds passaram. O endpoint verifica resposta HTTP, não garante que WebSocket ou criação de sala funcionem.
-- A biblioteca de testes ignora a porta livre passada a `boot` quando recebe uma instância de `Server`, usando 2568; revisar isolamento dos testes para evitar colisão com processos existentes.
+- A biblioteca de testes ignorava a porta livre passada a `boot` com instância de `Server`, usando 2568. Corrigido inicializando o servidor na porta escolhida; regressão falhou antes e passou depois. `npm run verify`: 436 testes e builds passaram.
 
 ## Próximo passo
 
-Revisar o isolamento da porta dos testes e demais fluxos de conexão e fases da partida, incluindo rede instável e decisões durante a partida; ampliar a revisão de interface em outras proporções. Há alterações locais anteriores em documentos e assets; não incorporá-las inadvertidamente na publicação.
+Revisar demais fluxos de conexão e fases da partida, incluindo rede instável e decisões durante a partida; ampliar a revisão de interface em outras proporções. Há alterações locais anteriores em documentos e assets; não incorporá-las inadvertidamente na publicação.

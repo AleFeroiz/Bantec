@@ -1214,3 +1214,7 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Servidor parado: entrada indicou inacessível. Após iniciar o servidor, mudou automaticamente para disponível; sala criada indicou conectada e interrupção do servidor mostrou reconectando. Em 320 × 568 o cabeçalho coube na largura disponível.
 - Endpoint HTTP com CORS e resposta identificada tem teste de integração; cliente cobre falhas e respostas inválidas. `npm run verify`: 435 testes e builds passaram. O indicador de saúde HTTP não garante disponibilidade de WebSocket ou criação de sala.
+
+# Isolamento da porta dos testes — 2026-11-07
+
+- A regressão detectou que a suíte escolhia uma porta, mas `boot` iniciava a instância na 2568. Depois da correção, a porta selecionada foi usada; `npm run verify` passou com 436 testes e builds web/servidor.
