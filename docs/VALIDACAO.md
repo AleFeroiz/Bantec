@@ -1218,3 +1218,8 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 # Isolamento da porta dos testes — 2026-11-07
 
 - A regressão detectou que a suíte escolhia uma porta, mas `boot` iniciava a instância na 2568. Depois da correção, a porta selecionada foi usada; `npm run verify` passou com 436 testes e builds web/servidor.
+
+# Compra e aviso de duplas — 2026-11-07
+
+- Em partida DEV, Canaã dos Carajás com duas casas custou R$ 160.000, exibiu aluguel de R$ 50.000 e descontou o valor esperado do saldo; construções apareceram e console não apresentou erros ou avisos.
+- Um bot com duplas mostrou incorretamente “Você joga novamente” antes da correção. O teste direcionado cobre jogador local e bot; após corrigir, duplas forçadas na própria vez mostraram “Você joga novamente” em partida. A variante do bot não foi revista novamente no navegador. `npm run verify`: 437 testes e builds passaram.

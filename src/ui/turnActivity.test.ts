@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity.js'
+import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity.js'
 
 describe('atividade do jogador da vez', () => {
+  it('atribui a jogada extra a quem tirou duplas', () => {
+    expect(getDoublesAnnouncement('Ana', true)).toBe('Você joga novamente')
+    expect(getDoublesAnnouncement('Bot 1', false)).toBe('Bot 1 joga novamente')
+  })
   it('descreve cada fase para os outros participantes', () => {
     expect(getTurnActivityLabel('rolling')).toBe('Girando os dados')
     expect(getTurnActivityLabel('moving')).toBe('Movendo o peão')

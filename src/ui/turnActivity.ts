@@ -1,5 +1,9 @@
 type ActivityPhase = 'roll' | 'rolling' | 'moving' | 'resolve' | 'purchase' | 'buyback' | 'buyback-upgrade' | 'start-upgrade' | 'company-roll' | 'jail' | 'world-cup' | 'world-tour' | 'card-target' | 'debt' | 'ended'
 
+export function getDoublesAnnouncement(playerName: string, isLocalPlayer: boolean) {
+  return isLocalPlayer ? 'Você joga novamente' : `${playerName || 'A pessoa da vez'} joga novamente`
+}
+
 export function isBoardSelectionGuidanceActive(hasBoardChoice: boolean, showingCardReveal: boolean) {
   return hasBoardChoice && !showingCardReveal
 }

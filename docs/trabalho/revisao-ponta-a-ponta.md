@@ -20,6 +20,8 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - Teste de integração adicional confirmou que, após a queda do vendedor com pedido de leilão pendente, o bot responde e a reserva do comprador permanece no lance inicial.
 - Indicador da entrada mostrava “MESA ONLINE” sem verificar o servidor. O usuário escolheu mostrar a disponibilidade real; implementado endpoint leve e verificação periódica com a página visível. Navegador mostrou inacessível com servidor parado, disponível após iniciá-lo e reconectando ao interromper sala; cabeçalho coube em 320 px. `npm run verify`: 435 testes e builds passaram. O endpoint verifica resposta HTTP, não garante que WebSocket ou criação de sala funcionem.
 - A biblioteca de testes ignorava a porta livre passada a `boot` com instância de `Server`, usando 2568. Corrigido inicializando o servidor na porta escolhida; regressão falhou antes e passou depois. `npm run verify`: 436 testes e builds passaram.
+- Playtest DEV: compra de Canaã dos Carajás com duas casas apresentou custo R$ 160.000 e aluguel R$ 50.000; o saldo caiu de R$ 2.000.000 para R$ 1.840.000 e as construções apareceram. Console sem avisos ou erros.
+- Durante o turno do bot, o aviso de duplas dizia “Você joga novamente”. Corrigido para identificar a pessoa da vez, preservando “Você” para o jogador local; teste de texto cobre ambos. Em partida local, duplas forçadas mostraram a mensagem correta para o jogador local; a variante do bot foi validada pelo teste, não repetida visualmente. `npm run verify`: 437 testes e builds passaram.
 
 ## Próximo passo
 

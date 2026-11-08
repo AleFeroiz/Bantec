@@ -27,7 +27,7 @@ import { getOwnedPropertySpaceIds, shouldShowPlayerInspection } from './playerOw
 import { getDiceDestinationSpaceId } from './arrowGuidance'
 import type { GameFeedbackItem } from './feedbackQueue'
 import { playGameSound, startGameMusic, stopGameMusic, unlockGameAudio } from './gameAudio'
-import { getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity'
+import { getDoublesAnnouncement, getTurnActivityLabel, isBoardSelectionGuidanceActive, shouldShowTurnCard, shouldSuppressTurnCardForFeedback, shouldSuppressTurnCardForSpaceSelection } from './turnActivity'
 import { getBoardSpaceInteraction } from './boardInteraction'
 import { CashHudSymbols } from './CashHudSymbols'
 import { shouldShowRolledDice } from './dicePresentation'
@@ -202,7 +202,7 @@ function App() {
   const [thrownObjects, setThrownObjects] = useState<ThrowableEvent[]>([])
   const [earthquakeEvents, setEarthquakeEvents] = useState<EarthquakeEvent[]>([])
   const [cityEffectEvents, setCityEffectEvents] = useState<CityEffectEvent[]>([])
-  const [doublesAnnouncementVisible, setDoublesAnnouncementVisible] = useState(false)
+  const [doublesAnnouncement, setDoublesAnnouncement] = useState('')
   const [throwImpacts, setThrowImpacts] = useState<ThrowableEvent[]>([])
   const [graphicsQuality, setGraphicsQuality] = useState<GraphicsQuality>(DEFAULT_GRAPHICS_QUALITY)
   const [playerEmotes, setPlayerEmotes] = useState<Record<string, { emote: PlayerEmote; sequence: number }>>({})
@@ -705,8 +705,8 @@ function App() {
           setDiceForPawnMovement(true)
           const active = snapshot.players.get(snapshot.activePlayerSessionId)
           if (snapshot.diceOne === snapshot.diceTwo && !active?.isJailed && !snapshot.landingDescription.includes('três vezes seguidas')) {
-            setDoublesAnnouncementVisible(true)
-            window.setTimeout(() => setDoublesAnnouncementVisible(false), 2200)
+            setDoublesAnnouncement(getDoublesAnnouncement(active?.name ?? '', active?.controllerSessionId === room.sessionId || snapshot.activePlayerSessionId === room.sessionId))
+            window.setTimeout(() => setDoublesAnnouncement(''), 2200)
           }
         } else if (!['rolling', 'moving'].includes(snapshot.turnPhase)) {
           setDiceForPawnMovement(false)
@@ -1274,7 +1274,7 @@ function App() {
         <section className="game-overlay">
           <div className="game-topline"><button className="back-link" onClick={() => setScreen('room')}>← Sala {roomCode}</button><div className="game-status-cluster"><div className={`game-pill ${matchEnding || (matchDuration > 0 && matchSeconds <= 60) ? 'clock-warning' : ''}`}>{modeDetails[mode].title.toUpperCase()} <span>·</span> {matchDuration === 0 ? 'SEM TEMPO' : formatClock(matchSeconds)}</div>{turnPhase !== 'ended' && <div className={`turn-clock-pill ${turnSeconds > 0 && turnSeconds <= 5 ? 'clock-warning' : ''}`} role="timer" aria-label={`Relógio do turno de ${activePlayer?.name ?? 'jogador ativo'}: ${turnSeconds} segundos restantes`}><span aria-hidden="true">◷</span><small>VEZ · {activePlayer?.name ?? '—'}</small><strong>{formatClock(turnSeconds)}</strong></div>}{animationSpeedControl}</div><div className="game-tools" aria-live="polite">{auctionId > 0 && <span className="auction-live-status">LANCES ABERTOS · {auctionSeconds}s</span>}</div></div>
           <div className="game-topline-camera-hint" aria-label="Controles da câmera">Arraste para girar · scroll ou pinça para zoom</div>
-          {doublesAnnouncementVisible && <div className="doubles-announcement" role="status" aria-live="assertive"><span>✦</span><strong>TIROU DUPLAS!</strong><small>Você joga novamente</small></div>}
+          {doublesAnnouncement && <div className="doubles-announcement" role="status" aria-live="assertive"><span>✦</span><strong>TIROU DUPLAS!</strong><small>{doublesAnnouncement}</small></div>}
           <div className={`player-hud player-count-${roomPlayers.length}`}>{roomPlayers.map((player, index) => {
             const remainingCooldown = Math.max(0, (throwCooldowns[player.sessionId] ?? 0) - throwCooldownNow)
             const canThrowAtPlayer = Boolean(localPlayer && player.sessionId !== localSessionId && !player.isBankrupt && !localPlayer.isBankrupt && turnPhase !== 'ended')
