@@ -1280,3 +1280,9 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 - Playtest em 1280 × 720 via proxy TCP local: jogada e compra de Manaus concluíram com 180 ms de atraso por trecho. Em seguida, o proxy reteve o tráfego por seis segundos sem fechar a conexão; restaurado o encaminhamento, a interface recebeu o estado autoritativo atualizado (turno e saldos), enquanto o servidor avançava a partida.
 - Com o tabuleiro livre de modal, arraste alterou a órbita e a roda alterou o zoom. Isso cobre entrada de mouse desktop, não a pinça em tela sensível ao toque. A queda abrupta de WebSocket já foi validada em teste separado; indisponibilidade longa do serviço ainda não foi exercitada.
 - Vite, Colyseus e proxy foram encerrados; as portas 5173, 2567, 2568 e 2570 ficaram livres.
+
+### 2026-11-08 — Interrupção prolongada e reinício do servidor
+
+- Via proxy TCP, interrompi todo o tráfego por 30 s mantendo o servidor ativo. Restaurado o tráfego, o navegador permaneceu na sala e recebeu o estado atualizado; não houve perda dos turnos processados pelo servidor.
+- Ao parar o processo Colyseus, o cliente voltou à home após não conseguir reconectar, exibiu “SERVIDOR INACESSÍVEL” e preservou os campos de nome/código. Reiniciado o servidor, `/health` respondeu `{"status":"ok"}` através do proxy e a home passou a exibir “SERVIDOR DISPONÍVEL”. A sala não pôde ser recuperada após reinício porque a sessão vive só na memória do processo.
+- Proxy, Vite e servidor foram encerrados; as portas 5173, 2567, 2568 e 2570 foram verificadas livres. A limpeza da última sala salva continua aguardando decisão do usuário.
