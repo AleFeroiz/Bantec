@@ -420,6 +420,37 @@ describe('sala privada', () => {
     await colyseus.cleanup()
   })
 
+  it.each([false, true])('devolve reserva ao encerrar com pedido de leilão %s', async (acceptedDuringMovement) => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    const seller = await colyseus.connectTo(room, { name: 'Ana' })
+    const buyer = await colyseus.connectTo(room, { name: 'Bia' })
+    markPlayersReady(room)
+    seller.send('start')
+    await waitFor(() => room.state.status === 'playing')
+    const property = boardSpaces.find((space) => space.kind === 'property')!
+    const title = new PropertyState()
+    title.ownerSessionId = seller.sessionId
+    room.state.properties.set(String(property.id), title)
+    const player = room.state.players.get(buyer.sessionId)!
+    const balance = player.cash
+    room.state.players.get(seller.sessionId)!.cash = balance - property.price - 20_000
+    if (acceptedDuringMovement) room.state.turnPhase = 'moving'
+    buyer.send('auctionRequest', { propertyId: property.id, startingBid: 100_000 })
+    await waitFor(() => room.state.auctionRequestId > 0)
+    if (acceptedDuringMovement) {
+      seller.send('auctionRespondRequest', { requestId: room.state.auctionRequestId, accept: true })
+      await waitFor(() => room.state.auctionRequestId === 0)
+    }
+    expect(player.cash).toBe(balance - 100_000)
+    const serverRoom = room as unknown as { finishMatch: (reason: 'timeout') => void; queuedAuctionStart: unknown }
+    serverRoom.finishMatch('timeout')
+    expect(player.cash).toBe(balance)
+    expect(player.finalCash).toBe(balance)
+    expect(room.state.winnerSessionId).toBe(buyer.sessionId)
+    expect(room.state.auctionRequestId).toBe(0)
+    expect(serverRoom.queuedAuctionStart).toBeNull()
+  })
+
   it('permite empréstimo fora da vez, aplica limite e bloqueia outro ativo', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })

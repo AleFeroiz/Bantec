@@ -1706,7 +1706,7 @@ export class GameRoom extends Room<{ state: LobbyState }> {
 
   private finishMatch(reason: MatchEndReason, forcedWinnerSessionId?: string) {
     if (this.state.status === 'ended') return
-    this.clearAuction(true)
+    this.stopClocks()
     const activePlayers = Array.from(this.state.players.entries()).filter(([, player]) => !player.isBankrupt)
     const holdings = this.getHoldings()
     const individualScores = activePlayers.map(([sessionId, player]) => ({ sessionId, player, netWorth: calculateNetWorth(sessionId, player.cash, holdings) - (reason === 'timeout' ? player.loanDue : 0) }))
@@ -1750,7 +1750,6 @@ export class GameRoom extends Room<{ state: LobbyState }> {
     this.state.turnPhase = 'ended'
     this.state.winnerSessionId = winner?.sessionId ?? ''
     this.state.matchEndReason = reason
-    this.stopClocks()
     if (this.reconnectRetentionTimer) {
       this.clearReconnectRetention()
       if (![...this.state.players.values()].some((player) => player.isConnected && !player.isBot)) this.disconnect()

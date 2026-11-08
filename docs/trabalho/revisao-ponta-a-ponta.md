@@ -31,8 +31,8 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 - Na saída da prisão por duplas, o servidor já retirava o estado de prisão antes da UI receber os dados; por isso o aviso de jogada extra podia aparecer apesar de a regra não concedê-la. A condição agora exige rolagem normal anterior; teste direcionado cobre prisão, terceira dupla e rolagem comum. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
 - Pedido de leilão aceito durante movimento podia iniciar com comprador que entrou em dívida ao chegar. Regressão reproduziu o problema; corrigida a validação ao iniciar e devolução da reserva. Se a devolução cobrir a dívida, o pagamento é processado.
 - Após reconexão manual por nome e segunda queda, o bot não avançava porque o identificador original era marcado como substituído. Corrigida a distinção de comandos internos; teste confirma que o bot age, a conexão antiga segue bloqueada e uma devolução de reserva pode quitar dívida. `npm run verify`: 446 testes e builds passaram.
-- Hipótese a reproduzir: encerramento com pedido de leilão ou pedido aceito ainda enfileirado pode deixar a reserva fora do patrimônio final; investigar antes de concluir a frente de leilão.
+- Reproduzido e corrigido: ao encerrar com pedido de leilão pendente ou pedido aceito ainda enfileirado, a reserva era devolvida depois do cálculo patrimonial. Dois testes falharam antes da correção, verificando também a troca do vencedor, e passaram com a liquidação das reservas antes do placar.
 
 ## Próximo passo
 
-Reproduzir o encerramento com reserva de leilão pendente e revisar demais fluxos de conexão e fases da partida; ampliar a revisão de interface em outras proporções. Há alterações locais anteriores em documentos e assets; não incorporá-las inadvertidamente na publicação.
+Rodar `npm run verify`, concluir a revisão de demais fluxos de conexão e fases da partida e ampliar a revisão de interface em outras proporções. Há alterações locais anteriores em documentos e assets; não incorporá-las inadvertidamente na publicação.

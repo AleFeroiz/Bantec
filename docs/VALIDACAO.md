@@ -1262,3 +1262,9 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - Teste reproduziu leilão enfileirado iniciando com comprador em dívida; após a correção, reserva é devolvida e pode quitar a dívida. Outro teste reproduziu bot sem agir após reconexão manual e segunda queda; comandos internos agora avançam a jogada e a conexão antiga permanece bloqueada.
 - `npm run verify`: 446 testes e builds web/servidor passaram. São testes de integração local; não simulam latência ou perda de pacotes reais.
+
+### 2026-11-08 — Reserva de leilão no encerramento
+
+- Teste Colyseus reproduziu saldo final R$ 100.000 abaixo do correto quando a partida terminava com pedido de leilão pendente ou aceito durante movimento; a segunda combinação também escolhia a pessoa errada como vencedora. A regressão falhou antes da correção nos dois casos.
+- `finishMatch` agora interrompe relógios e liquida reservas de leilões antes de calcular caixa final, patrimônio e vencedor. Os dois cenários verificam devolução, caixa final, vencedor esperado e limpeza do pedido/enfileiramento; passaram no teste direcionado.
+- `npm run verify` passou com 448 testes em 76 arquivos; builds Vite e servidor passaram. O Vite manteve o aviso do bundle principal acima de 500 kB (1.495,38 kB; gzip 428,07 kB).

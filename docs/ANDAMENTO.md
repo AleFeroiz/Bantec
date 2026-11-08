@@ -13,6 +13,7 @@
 - Corrigida descrição da vitória por falência, que exibia identificador interno como equipe; testes cobrem individual e equipe. `npm run verify`: 443 testes e builds passaram.
 - Corrigido aviso de jogada extra em duplas usadas para sair da prisão; teste direcionado cobre rolagem normal, prisão e terceira dupla. `npm run verify`: 444 testes e builds passaram; cenário específico não foi repetido visualmente.
 - Corrigidos leilão enfileirado que podia iniciar com comprador em dívida e bot travado após reconexão manual e segunda queda. Testes cobrem devolução, quitação e bloqueio da conexão antiga; 446 testes e builds passaram. Próximo passo: investigar reserva pendente ao encerrar a partida.
+- Encerramento com reserva de leilão corrigido: a devolução agora ocorre antes de calcular patrimônio final e vencedor, tanto para pedido pendente quanto para pedido aceito enfileirado durante movimento. Testes reproduziram o saldo omitido e a troca incorreta do vencedor; ambos os cenários passaram. `npm run verify`: 448 testes em 76 arquivos e builds web/servidor passaram; próximo passo: revisar fluxos restantes de conexão, partida e interfaces.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)
