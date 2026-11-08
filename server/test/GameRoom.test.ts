@@ -2642,7 +2642,7 @@ describe('sala privada', () => {
     expect(room.state.properties.get(String(propertyId))?.ownerSessionId ?? '').toBe('')
   })
 
-  it('liquida automaticamente uma dívida por devolução ao banco quando o prazo termina', async () => {
+  it('recupera dívida travada no zero sem repetir a liquidação', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
     await colyseus.connectTo(room, { name: 'Bia' })
@@ -2660,11 +2660,12 @@ describe('sala privada', () => {
     room.state.turnPhase = 'debt'
     room.state.debtAmount = 20_000
     room.state.debtReason = 'taxa'
-    room.state.turnSeconds = 1
+    room.state.turnSeconds = 0
 
-    const server = room as unknown as { updateTurnClock: () => void; turnTimerKey: string }
+    const server = room as unknown as { recoverExpiredTurn: () => void; turnTimerKey: string }
     server.turnTimerKey = `${room.state.turnNumber}:${host.sessionId}:debt`
-    server.updateTurnClock()
+    server.recoverExpiredTurn()
+    server.recoverExpiredTurn()
 
     expect(holding.ownerSessionId).toBe('')
     expect(player.cash).toBe(bankReturnValue(propertySpace.id) - 20_000)
