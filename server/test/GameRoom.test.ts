@@ -2468,7 +2468,7 @@ describe('sala privada', () => {
     expect(room.state.properties.get(String(propertyId))?.ownerSessionId ?? '').toBe('')
   })
 
-  it('concede 15 segundos completos para selecionar o alvo depois de fechar a carta', async () => {
+  it('concede 20 segundos completos para selecionar o alvo depois de fechar a carta', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     const host = await colyseus.connectTo(room, { name: 'Ana' })
     await colyseus.connectTo(room, { name: 'Bia' })
@@ -2501,6 +2501,7 @@ describe('sala privada', () => {
 
     host.send('dismissCardReveal')
     await waitFor(() => !serverGame.cardTargetRevealPending && room.state.turnSeconds === CARD_TARGET_SECONDS)
+    expect(room.state.turnSeconds).toBe(20)
     serverGame.updateTurnClock()
     expect(room.state.turnPhase).toBe('card-target')
     expect(room.state.turnSeconds).toBe(CARD_TARGET_SECONDS - 1)

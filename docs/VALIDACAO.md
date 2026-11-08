@@ -1238,3 +1238,7 @@ O pacote `Builds/WebReleaseActivityFix` foi preparado por `deployment/package-pr
 
 - A ausência de opções era calculada a partir da carteira local e aparecia mesmo a quem observava outra pessoa. O aviso calculado localmente agora aparece somente à pessoa da vez; teste cobre jogador e espectador.
 - `npm run verify`: 441 testes e builds passaram. O cenário específico de carta com alvo não foi repetido visualmente nesta sessão.
+
+# Prazo de escolha de carta — 2026-11-07
+
+- Teste de integração atualizado para verificar explicitamente 20 segundos após a revelação, conforme a regra, corrigindo título antigo de 15 segundos. `npm run verify`: 441 testes e builds passaram.

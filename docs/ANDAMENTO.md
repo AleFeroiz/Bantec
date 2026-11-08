@@ -8,6 +8,7 @@
 - Revelações da Volta e Copa exibiam instruções de escolha também a espectadores; cópia ajustada para identificar quem escolhe. Dois clientes validaram as perspectivas na Volta; Copa coberta por teste de texto. `npm run verify`: 438 testes e builds passaram.
 - Correção para abas compartilhando armazenamento: reconexão mantém o nome da própria aba e saída não apaga lembrança de outra sessão; regressão e `npm run verify` passaram com 440 testes e builds. Fallback após interrupção prolongada não foi repetido manualmente.
 - Corrigido aviso de alvo inexistente exibido a espectadores com base nos próprios bens; teste direcionado e `npm run verify` passaram com 441 testes e builds. O cenário específico ainda não foi repetido visualmente.
+- Conferido o prazo de alvo de carta: teste existente tinha título antigo de 15 segundos e agora verifica explicitamente os 20 segundos previstos. Suíte e builds passaram.
 - Alterações locais anteriores em documentos e assets foram encontradas e devem ser preservadas.
 
 # Ingressos acumuláveis para apostas — concluídos (2026-11-07)
