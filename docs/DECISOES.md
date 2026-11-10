@@ -8,6 +8,7 @@ Após criar ou entrar na sala, mostrar até seis fichas 3D em plataformas, com n
 
 ## Confirmadas e vigentes
 
+- **Retomada de sala expirada (2026-11-10):** apagar a última sala salva apenas quando o servidor confirmar que o código não existe; preservar a lembrança em falhas de rede, respostas inconclusivas e sala bloqueada. A limpeza deve respeitar alterações feitas por outra aba.
 - **Disponibilidade do servidor (2026-11-07):** o usuário escolheu mostrar o estado real do servidor no indicador da entrada, em vez de exibir sempre verde. A página verifica um endpoint leve ao abrir e periodicamente enquanto visível; a verificação pode despertar ou manter ativo o serviço gratuito enquanto a página estiver aberta. Falhas indicam servidor inacessível ao navegador, não provam a causa; uma sala conectada usa seu estado de conexão.
 
 - **Recuperação de cadeira (2026-11-07):** o usuário confirmou manter a retomada simples pelo código da sala e nome exato da pessoa desconectada, ciente de que quem conhece ambos pode assumir essa cadeira.

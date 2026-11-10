@@ -76,6 +76,18 @@ describe('sala privada', () => {
     await expect(response.json()).resolves.toEqual({ status: 'ok' })
   })
 
+  it('confirma existência de sala bloqueada e ausência de sala descartada', async () => {
+    const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
+    await room.lock()
+    const base = `http://127.0.0.1:${selectedPort}/room-exists/`
+    const existing = await fetch(base + room.roomId)
+    expect(existing.status).toBe(200)
+    await expect(existing.json()).resolves.toEqual({ exists: true })
+    const missing = await fetch(base + 'ZZZZZ')
+    expect(missing.status).toBe(200)
+    await expect(missing.json()).resolves.toEqual({ exists: false })
+  })
+
   it('rejeita nome normalizado já conectado sem impedir nomes distintos', async () => {
     const room = await colyseus.createRoom<LobbyState>('game_room', { mode: 'classic' })
     await colyseus.connectTo(room, { name: 'Ana Maria' })

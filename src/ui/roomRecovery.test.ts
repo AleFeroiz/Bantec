@@ -1,7 +1,23 @@
 import { describe, expect, it, vi } from 'vitest'
-import { clearLastRoom, configureRoomReconnection, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
+import { clearLastRoom, configureRoomReconnection, discardExpiredLastRoom, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
 
 describe('room reconnection recovery', () => {
+  it('apaga apenas a sala confirmada inexistente e preserva falhas e alterações de outra aba', async () => {
+    const values = new Map<string, string>()
+    const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) }, removeItem: (key: string) => { values.delete(key) } }
+    const room = { roomCode: 'ABCDE', name: 'Ana', reconnectionToken: 'a' }
+    saveLastRoom(storage, room)
+    await discardExpiredLastRoom(storage, room, async () => true)
+    expect(readLastRoom(storage)).toEqual(room)
+    await discardExpiredLastRoom(storage, room, async () => { throw new Error('offline') })
+    expect(readLastRoom(storage)).toEqual(room)
+    const other = { roomCode: 'FGHJK', name: 'Bia', reconnectionToken: 'b' }
+    await discardExpiredLastRoom(storage, room, async () => { saveLastRoom(storage, other); return false })
+    expect(readLastRoom(storage)).toEqual(other)
+    saveLastRoom(storage, room)
+    await discardExpiredLastRoom(storage, room, async () => false)
+    expect(readLastRoom(storage)).toBeNull()
+  })
   it('preserva o nome de cada aba mesmo quando outra altera a última sala compartilhada', async () => {
     const values = new Map<string, string>()
     const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) } }

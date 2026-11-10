@@ -9,7 +9,7 @@ import { EVENT_CARDS } from '../../shared/cards'
 import { scheduleSceneLoad } from './sceneLoading'
 import { roomClient, roomServerUrl } from './roomClient'
 import { checkServerHealth } from './serverHealth'
-import { clearLastRoom, configureRoomReconnection, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, saveLastRoom } from './roomRecovery'
+import { checkRoomExists, clearLastRoom, configureRoomReconnection, discardExpiredLastRoom, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, saveLastRoom } from './roomRecovery'
 import { finalScoreMetrics, rankFinalScore, rankFinalTeamScore, scoreCriteria } from './scoreCriteria'
 import { getLobbyPlayerEntries } from './lobbySnapshot'
 import { canAffordPurchase } from './purchaseActions'
@@ -278,11 +278,12 @@ function App() {
     void recoverRoomAfterRetries(
       () => lastRoom.reconnectionToken ? roomClient.reconnect(lastRoom.reconnectionToken) : Promise.reject(new Error('No saved token')),
       () => roomClient.joinById(lastRoom.roomCode, { name: lastRoom.name }),
-    ).then(({ room: recovered }) => {
+    ).then(async ({ room: recovered }) => {
       if (recovered) {
         setName(lastRoom.name)
         connectToRoom(recovered, lastRoom.name)
       } else {
+        await discardExpiredLastRoom(getLocalStorage(), lastRoom, () => checkRoomExists(roomServerUrl, lastRoom.roomCode))
         setError('Não foi possível retomar a última sala. Confira o código e o nome ou entre em outra sala.')
       }
     }).finally(() => {
