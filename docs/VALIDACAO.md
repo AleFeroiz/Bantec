@@ -1,3 +1,8 @@
+### 2026-11-10 — Camadas do leilão com modo DEV
+
+- Em 390 × 844, uma partida com bot e DEV reproduziu ferramentas sobre os detalhes do imóvel e o painel de leilão. Após ajustar a camada dos controles, o painel de Manaus ficou legível e os botões visíveis permitiram anunciar e cancelar por clique nas respectivas posições.
+- Em 1280 × 720, a inspeção ficou acima das ferramentas DEV e, ao fechá-la, os controles voltaram a ficar acessíveis. Regressão visual feita antes e depois; não foi adicionado teste automatizado de pixels. `npm run verify` passou com 460 testes em 76 arquivos e builds web/servidor. As sessões locais foram encerradas e a viewport restaurada.
+
 ### 2026-11-10 — Retomada de sala expirada
 
 - Cobertura adicional da consulta HTTP: booleanos válidos, erro HTTP, JSON malformado, campo inválido e rede indisponível; suíte completa passou com 460 testes e builds.

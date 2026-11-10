@@ -1412,3 +1412,6 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .loan-dialog-backdrop .loan-control{position:relative;inset:auto;box-sizing:border-box;width:min(420px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:16px;border-radius:16px;font-size:12px}
 .loan-control header{display:flex;align-items:center;justify-content:space-between;gap:12px}.loan-control header>strong{font-size:11px;letter-spacing:.08em}.loan-control header>button{width:34px;height:34px;border:0;border-radius:8px;background:#e8eadf;color:#344b3c;font-size:23px}.loan-control>strong{font-size:12px}.loan-control>span,.loan-control>small{font-size:11px;line-height:1.4}.loan-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}.loan-steps button{min-width:0;min-height:38px;padding:4px 2px;font-size:clamp(7px,2.4vw,10px);white-space:nowrap}.loan-steps b{font-size:clamp(10px,3vw,14px);text-align:center;white-space:nowrap}
 @media(max-width:640px){.game-economy-actions{gap:3px}.game-economy-actions>.economy-action-button,.game-economy-actions .betting-control>button{border-radius:10px}.loan-dialog-backdrop .loan-control{padding:13px}.loan-steps{gap:3px}}
+
+/* Controles de dados e DEV ficam atrás das decisões e inspeções centrais. */
+.screen-game .roll-control{z-index:6}
