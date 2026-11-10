@@ -1,5 +1,6 @@
 ### 2026-11-10 — Retomada de sala expirada
 
+- Cobertura adicional da consulta HTTP: booleanos válidos, erro HTTP, JSON malformado, campo inválido e rede indisponível; suíte completa passou com 460 testes e builds.
 - As regressões falharam antes da correção e passaram depois: consulta reconhece sala bloqueada e código inexistente; limpeza preserva falha de rede e registro substituído por outra aba. `npm run verify` passou com 459 testes em 76 arquivos e builds web/servidor; permanece o aviso de bundle acima de 500 kB.
 - No navegador local, após falha de retomada de sala descartada, atualizar a página não repetiu o aviso. Com uma sala de teste salva e o servidor desligado, nome e código permaneceram após atualizar duas vezes. As sessões locais usadas foram encerradas.
 

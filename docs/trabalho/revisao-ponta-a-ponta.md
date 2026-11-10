@@ -57,4 +57,6 @@ Em andamento. Revisar regras e ações autoritativas, recuperação de conexão,
 
 ## Próximo passo
 
+Teste adicional da consulta HTTP confirma que resposta inválida, JSON malformado e falha de rede são inconclusivos; respostas booleanas válidas são respeitadas. `npm run verify` passou com 460 testes em 76 arquivos e builds web/servidor.
+
 O usuário decidiu apagar a lembrança somente após confirmação de sala inexistente, preservando-a em falhas de rede. O `joinById` do Colyseus usa `MATCHMAKE_INVALID_ROOM_ID` tanto para sala inexistente quanto bloqueada; a correção consulta o cadastro de salas por código. Regressões falharam antes e passaram depois, cobrindo sala bloqueada, sala inexistente, falha de rede e troca do registro por outra aba. `npm run verify` passou com 459 testes em 76 arquivos e builds web/servidor. Playtest local confirmou que, depois de sala descartada, o aviso não reaparece após atualizar; com servidor desligado, nome e código permanecem após nova atualização. Próximos passos: revisar e publicar o escopo isolado, verificar pinça/câmera em celular, perda real de contexto WebGL e fases visuais restantes. Reinício do processo perde salas ativas em memória. Alterações locais anteriores em documentos e assets devem permanecer fora da publicação.

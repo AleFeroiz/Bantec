@@ -1,6 +1,7 @@
 # Revisão de ponta a ponta — em andamento (2026-11-07)
 
 - Revisão de regras, rede, interface e testes em andamento; escopo e evidências em [revisao-ponta-a-ponta.md](trabalho/revisao-ponta-a-ponta.md).
+- A consulta HTTP da retomada recebeu teste adicional para resposta válida, HTTP inválido, JSON malformado e indisponibilidade; `npm run verify` passou com 460 testes e builds. A revisão geral continua em andamento.
 - Em 2026-11-10, o usuário decidiu apagar a lembrança da última sala somente após confirmação de que ela não existe, preservando-a em falhas de conexão. A correção está em investigação: o Colyseus usa o mesmo código de erro para sala inexistente e sala bloqueada; é necessário confirmar a inexistência sem confundir os dois casos.
 - Correção implementada: consulta específica ao cadastro de salas confirma a existência inclusive quando bloqueadas; falha ou resposta inválida mantém a lembrança e a limpeza verifica sala, nome e token. As duas regressões falharam antes da correção e passaram depois. `npm run verify`: 459 testes e builds aprovados. No navegador, sala expirada deixou de gerar aviso após atualização; com servidor desligado, nome e código permaneceram após nova atualização.
 - Em 2026-11-08, playtest desktop com proxy local confirmou jogada/compra sob latência de 180 ms por trecho e sincronização após seis segundos sem tráfego; arraste e roda alteraram a câmera em 1280 × 720. Pinça em celular e indisponibilidade prolongada ainda estão pendentes. A decisão de limpar a última sala após confirmação de expiração foi solicitada novamente.

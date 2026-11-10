@@ -1,7 +1,29 @@
 import { describe, expect, it, vi } from 'vitest'
-import { clearLastRoom, configureRoomReconnection, discardExpiredLastRoom, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
+import { checkRoomExists, clearLastRoom, configureRoomReconnection, discardExpiredLastRoom, getSessionRecoveryName, readLastRoom, recoverRoomAfterRetries, ROOM_RECONNECT_MAX_RETRIES, saveLastRoom } from './roomRecovery'
 
 describe('room reconnection recovery', () => {
+  it('aceita somente confirmação HTTP válida de existência e trata erros como inconclusivos', async () => {
+    const fetcher = vi.fn()
+    vi.stubGlobal('fetch', fetcher)
+    try {
+      fetcher.mockResolvedValueOnce({ ok: true, json: async () => ({ exists: false }) })
+      expect(await checkRoomExists('wss://salas.example', 'ABCDE')).toBe(false)
+      expect(String(fetcher.mock.calls[0]?.[0])).toBe('https://salas.example/room-exists/ABCDE')
+      expect(fetcher.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ cache: 'no-store' }))
+      fetcher.mockResolvedValueOnce({ ok: true, json: async () => ({ exists: true }) })
+      expect(await checkRoomExists('https://salas.example', 'ABCDE')).toBe(true)
+      fetcher.mockResolvedValueOnce({ ok: false })
+      expect(await checkRoomExists('https://salas.example', 'ABCDE')).toBeNull()
+      fetcher.mockResolvedValueOnce({ ok: true, json: async () => ({ exists: 'false' }) })
+      expect(await checkRoomExists('https://salas.example', 'ABCDE')).toBeNull()
+      fetcher.mockResolvedValueOnce({ ok: true, json: async () => { throw new Error('JSON inválido') } })
+      expect(await checkRoomExists('https://salas.example', 'ABCDE')).toBeNull()
+      fetcher.mockRejectedValueOnce(new Error('offline'))
+      expect(await checkRoomExists('https://salas.example', 'ABCDE')).toBeNull()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
   it('apaga apenas a sala confirmada inexistente e preserva falhas e alterações de outra aba', async () => {
     const values = new Map<string, string>()
     const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value) }, removeItem: (key: string) => { values.delete(key) } }
